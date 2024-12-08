@@ -4,7 +4,7 @@ public class AcknowledgeMessage extends Message {
     private String info;
 
     public AcknowledgeMessage() {
-        this.type = "acknowledge";
+        this("");
     }
 
     public AcknowledgeMessage(String info) {
@@ -14,5 +14,9 @@ public class AcknowledgeMessage extends Message {
 
     public String getInfo() {
         return info;
+    }
+
+    public String toString() {
+        return "AcknowledgeMessage: " + info;
     }
 }

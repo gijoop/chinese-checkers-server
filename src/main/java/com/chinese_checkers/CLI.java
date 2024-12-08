@@ -15,6 +15,7 @@ public class CLI {
 
         int playerCount = 2;
         int port = 58901;
+        Server server = null;
 
         while (true) {
             System.out.print("> ");
@@ -26,8 +27,14 @@ public class CLI {
                     System.out.println("Invalid number of arguments");
                     continue;
                 }
+                
+                try {
+                    Integer.parseInt(tokens[1]);
+                } catch (NumberFormatException e) {
+                    System.out.println("Port must be an integer");
+                    continue;
+                }
 
-                port = Integer.parseInt(tokens[1]);
                 if (port < 1024 || port > 65535) {
                     System.out.println("Port must be between 1024 and 65535");
                     continue;
@@ -39,8 +46,14 @@ public class CLI {
                     System.out.println("Invalid number of arguments");
                     continue;
                 }
+                
+                try {
+                    Integer.parseInt(tokens[1]);
+                } catch (NumberFormatException e) {
+                    System.out.println("Player count must be an integer");
+                    continue;
+                }
 
-                playerCount = Integer.parseInt(tokens[1]);
                 if (playerCount < 2 || playerCount > 10) {
                     System.out.println("Player count must be between 2 and 10");
                     continue;
@@ -48,8 +61,17 @@ public class CLI {
 
                 System.out.println("Player count set to " + playerCount);
             } else if (tokens[0].equals("start")) {
-                Server server = new Server(playerCount, port);
+                if (server != null) {
+                    System.out.println("Server already started");
+                    continue;
+                }
+                server = new Server(playerCount, port);
                 server.start();
+            } else if (tokens[0].equals("stop")) {
+                if (server != null) {
+                    server.stop();
+                }
+                System.out.println("Server stopped");
             }
             else if (tokens[0].equals("exit")) {
                 break;

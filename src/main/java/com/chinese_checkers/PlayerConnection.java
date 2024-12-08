@@ -6,11 +6,14 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.chinese_checkers.Message.AcknowledgeMessage;
-import com.chinese_checkers.Message.ConnectMessage;
+import com.chinese_checkers.Message.JoinMessage;
 import com.chinese_checkers.Message.Message;
+import com.chinese_checkers.Message.MoveMessage;
+import com.chinese_checkers.Message.ServerMoveMessage;
 
 class PlayerConnection implements Runnable {
 
@@ -21,105 +24,118 @@ class PlayerConnection implements Runnable {
     private PrintWriter sender;
     private CommandParser commandParser = CommandParser.getInstance();
     private ReentrantLock socketLock;
+    private boolean terminated = false;
+    private boolean connected = false;
 
 
-    public PlayerConnection(ServerSocket listener, ReentrantLock socketLock) {
+    public PlayerConnection(ServerSocket listener, ReentrantLock socketLock, Player player) {
         this.listener = listener;
         this.socketLock = socketLock;
+        this.player = player;
+
+        // Add command callbacks for messages that are bound to player
+        commandParser.addCommand("move", msg -> moveCallback((MoveMessage)msg));
     }
 
     public void send(Message message) {
         sender.println(message.toJson());
     }
 
-    private void establishConnection() {
+    @Override
+    public void run() {
+        try {
+            establishConnection();
+            parseCommands();
+
+        } catch (IOException e) {
+            if(!terminated){
+                System.out.print("\n Connection error: " + e.getMessage());
+            }
+        } finally {
+            terminate();
+        }
+    }
+
+    private void establishConnection() throws IOException {
         socketLock.lock();
         try {
             clientSocket = listener.accept();
             reciever = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             sender = new PrintWriter(clientSocket.getOutputStream(), true);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new SocketException("Connection failed");
         } finally {
             socketLock.unlock();
         }
 
-        ConnectMessage connectMessage = waitForConnectMessage();
+        JoinMessage connectMessage = waitForJoinMessage();
         if (connectMessage == null) {
-            System.out.println("Invalid connection from player " + player.getName());
-            terminate();
+            throw new IOException("Invalid connection from player " + player.getName());
         }
 
+        connected = true;
         System.out.println("Player " + connectMessage.getName() + " connected");
-        player = new Player(connectMessage.getName(), Server.getID(), connectMessage.getColor());
+        player.setName(connectMessage.getName());
         
     }
 
-    public ConnectMessage waitForConnectMessage() {
+    public JoinMessage waitForJoinMessage() {
 
         try {
             String line = reciever.readLine();
             if (line == null) return null;
             Message msg = Message.fromJson(line);
 
-            if (msg != null && msg.getType().equals("connect")) {
+            if (msg != null && msg.getType().equals("join")) {
                 sender.println(new AcknowledgeMessage("Successfully connected").toJson());
-                return (ConnectMessage) msg;
+                return (JoinMessage) msg;
             } else {
-                sender.println("ERROR: Invalid connection message");
+                sender.println("ERROR: Invalid join message");
                 return null;
             }
 
         } catch (IOException e) {
             e.printStackTrace();
             return null;
-
-        }
-
-    }
-
-    @Override
-    public void run() {
-        try {
-
-            establishConnection();
-            parseCommands();
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-
-        } finally {
-
-            terminate();
-        }
-    }
-    
-    public void terminate() {
-        try {
-            clientSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
-    private void parseCommands() {
+    private void parseCommands() throws IOException {
         while (true) {
             try {
-                String line = reciever.readLine();
+                String line = reciever.readLine(); // blocking if no line
                 if (line == null) {
-                    System.out.println("Player " + player.getName() + " disconnected");
-                    break;
+                    throw new IOException("Connection to player " + player.getName() + " lost. Player disconnected");
                 }
-                Message msg = Message.fromJson(line);
-                System.out.println("Received message: " + msg.toJson());
-                commandParser.parseCommand(msg);
+                commandParser.parseCommand(Message.fromJson(line));
+
             } catch (IOException e) {
-                System.out.println("Player " + player.getName() + " disconnected");
-                break;
+                throw e;
             }
         }
     }
 
+    public boolean isConnected() {
+        return connected;
+    }
+
+    public int getPlayerID() {
+        return player.getId();
+    }
+
+    public void terminate() {
+        terminated = true;
+        if (clientSocket != null){
+            try {
+                clientSocket.close();
+            } catch (IOException e) {
+            }
+        }
+    }
+
+    private void moveCallback(MoveMessage msg) {
+        commandParser.parseCommand(new ServerMoveMessage(msg, player.getId()));
+        System.out.println("Move command received");
+    }
 
 }

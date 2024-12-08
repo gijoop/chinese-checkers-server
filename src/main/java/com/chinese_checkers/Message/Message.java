@@ -12,12 +12,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 )
 @JsonSubTypes({
     @JsonSubTypes.Type(value = MoveMessage.class, name = "move"),
-    @JsonSubTypes.Type(value = ConnectMessage.class, name = "connect"),
+    @JsonSubTypes.Type(value = JoinMessage.class, name = "join"),
     @JsonSubTypes.Type(value = AcknowledgeMessage.class, name = "acknowledge")
     // Add more message types as needed
 })
 public abstract class Message {
     protected String type;
+
+    public abstract String toString();
 
     public String getType() {
         return type;

@@ -15,8 +15,20 @@ public class Player {
         this.color = color;
     }
 
+    public Player(String name, int id) {
+        this(name, id, null);
+    }
+
+    public Player(int id) {
+        this(null, id, null);
+    }
+
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getId() {

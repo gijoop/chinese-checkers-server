@@ -1,11 +1,11 @@
 package com.chinese_checkers.Message;
 
 public class MoveMessage extends Message {
-    private String from;
-    private String to;
+    protected String from;
+    protected String to;
 
     public MoveMessage() {
-        this.type = "move";
+        this("", "");
     }
 
     public MoveMessage(String from, String to) {
@@ -20,5 +20,9 @@ public class MoveMessage extends Message {
 
     public String getTo() {
         return to;
+    }
+
+    public String toString() {
+        return "MoveMessage: from: " + from + " to: " + to;
     }
 }

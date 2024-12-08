@@ -5,8 +5,7 @@ import java.io.PrintWriter;
 import java.util.Scanner;
 
 
-import com.chinese_checkers.Message.ConnectMessage;
-import com.chinese_checkers.Message.MoveMessage;
+import com.chinese_checkers.Message.JoinMessage;
 
 
 public class Client {
@@ -27,7 +26,7 @@ public class Client {
         in = new Scanner(socket.getInputStream());
         out = new PrintWriter(socket.getOutputStream(), true);
 
-        out.println(new ConnectMessage("test").toJson());
+        out.println(new JoinMessage("test").toJson());
 
         System.out.println(in.nextLine());
         Thread.sleep(5000);

@@ -2,22 +2,33 @@ package com.chinese_checkers;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.chinese_checkers.Message.JoinMessage;
+import com.chinese_checkers.Message.Message;
+import com.chinese_checkers.Message.ServerMoveMessage;
+
 class Server {
-    private static int ID = 1000;
-    public static int getID() {
-        return ID++;
+    private static int playerID = 1000;
+    
+    /**
+     * Get the next avaiable player ID
+     * @return ID of the next player
+     */
+    public static int getplayerID() {
+        return playerID++;
     }
     
     private final int playerCount;
     private final int port;
 
-    private PlayerConnection[] playerConns;
-    private CommandParser commandParser;
+    private HashMap<Player, PlayerConnection> playerConns = new HashMap<Player, PlayerConnection>();
+    private CommandParser commandParser = CommandParser.getInstance();
     private ServerSocket listener;
+    private ReentrantLock socketLock = new ReentrantLock();
 
     public Server(final int playerCount, final int port) throws IllegalArgumentException {
         if (playerCount < 2 || playerCount > 6) {
@@ -29,41 +40,80 @@ class Server {
 
         this.playerCount = playerCount;
         this.port = port;
-        this.commandParser = CommandParser.getInstance();
 
-        commandParser.addCommand("move", msg -> System.out.println("Move command received"));
-        commandParser.addCommand("connect", msg -> System.out.println("Connect command received"));
-        commandParser.addCommand("disconnect", msg -> System.out.println("Disconnect command received"));
+        commandParser.addCommand("serverMove", msg -> serverMoveCallback((ServerMoveMessage)msg));
+        commandParser.addCommand("join", msg -> joinCallback((JoinMessage)msg));
+        commandParser.addCommand("disconnect", msg -> disconnectCallback(msg));
     }
 
     public void start() {
-        System.out.println("Chinese Checkers Server started");
-        this.playerConns = new PlayerConnection[playerCount];
+        System.out.println("Server started on port " + port);
 
         try {
             listener = new ServerSocket(port);
             ExecutorService threadPool = Executors.newFixedThreadPool(playerCount);
-            ReentrantLock socketLock = new ReentrantLock();
 
             for (int i = 0; i < playerCount; i++) {
-                playerConns[i] = new PlayerConnection(listener, socketLock);
-
-                threadPool.execute(playerConns[i]);
+                Player player = new Player(getplayerID());
+                PlayerConnection playerConn = new PlayerConnection(listener, socketLock, player);
+                playerConns.put(player, playerConn);
+                threadPool.execute(playerConn);
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        System.out.println("Waiting for players to connect...");
+
+        while (true) {
+            boolean allConnected = true;
+            for (PlayerConnection playerConn : playerConns.values()) {
+                if (playerConn == null || !playerConn.isConnected()) {
+                    allConnected = false;
+                    break;
+                }
+            }
+            if (allConnected) {
+                break;
+            }
+        }
+
+        System.out.println("All players connected, starting game");
 
     }
 
     public void stop() {
-        for (PlayerConnection playerConn : playerConns) {
+        for (PlayerConnection playerConn : playerConns.values()) {
             if (playerConn != null) {
                 playerConn.terminate();
             }
         }
+        try {
+            listener.close();
+        } catch (IOException e) {
+        }
     }
+
+    private void sendToAll(Message msg) {
+        for (PlayerConnection playerConn : playerConns.values()) {
+            if (playerConn != null) {
+                playerConn.send(msg);
+            }
+        }
+    }
+
+    private void serverMoveCallback(ServerMoveMessage msg) {
+        sendToAll(msg);
+    }
+
+    private void joinCallback(JoinMessage msg) {
+        System.out.println("Unexpected join command received");
+    }
+
+    private void disconnectCallback(Message msg) {
+        System.out.println("Disconnect command received");
+    }
+
 }
 
