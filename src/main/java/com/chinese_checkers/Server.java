@@ -1,92 +1,83 @@
 package com.chinese_checkers;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.ReentrantLock;
+
+import com.chinese_checkers.Message.ConnectMessage;
 
 class Server {
+    private final int playerCount;
+    private final int port;
 
     private int latestID = 1000;
-
-
-    // Board cells numbered 0-8, top to bottom, left to right; null if empty
     private PlayerConnection[] playerConns;
+    private CommandParser commandParser;
+    private ServerSocket listener;
 
-    PlayerConnection currentPlayer;
-    ServerSocket listener;
+    public Server(final int playerCount, final int port) throws IllegalArgumentException {
+        if (playerCount < 2 || playerCount > 6) {
+            throw new IllegalArgumentException("Player count must be between 2 and 6");
+        }
+        if (port < 1024 || port > 65535) {
+            throw new IllegalArgumentException("Port must be between 1024 and 65535");
+        }
 
-    public Server(final int playerCount) {
-        System.out.println("Chinese Checkers Server is Running...");
-        System.out.println("Waiting for all players to connect...");
-        playerConns = new PlayerConnection[playerCount];
+        this.playerCount = playerCount;
+        this.port = port;
+        this.commandParser = CommandParser.getInstance();
+
+        // Define commands
+        commandParser.addCommand("move", msg -> System.out.println("Move command received"));
+        commandParser.addCommand("connect", msg -> System.out.println("Connect command received"));
+        commandParser.addCommand("disconnect", msg -> System.out.println("Disconnect command received"));
+    }
+
+    public void start() {
+        System.out.println("Chinese Checkers Server started");
+        this.playerConns = new PlayerConnection[playerCount];
 
         try {
-            listener = new ServerSocket(58901);
+            listener = new ServerSocket(port);
             ExecutorService threadPool = Executors.newFixedThreadPool(playerCount);
+            //ReentrantLock socketLock = new ReentrantLock();
 
             for (int i = 0; i < playerCount; i++) {
-                playerConns[i] = new PlayerConnection(listener.accept(), new Player("Player " + (i + 1), latestID++, Player.CheckerColor.values()[i]));
-                threadPool.execute(playerConns[i]);
+                Socket clientSocket = listener.accept();
+
+                PlayerConnection connection = new PlayerConnection(clientSocket);
+                ConnectMessage connectMessage = connection.waitForConnectMessage();
+                if (connectMessage == null) {
+                    System.out.println("Invalid connection from player " + (i + 1));
+                    connection.terminate();
+                    i--;
+                    continue;
+                }
+
+                // Initialize the player and add to the list
+                Player player = new Player(connectMessage.getName(), latestID++, connectMessage.getColor());
+                connection.setPlayer(player);
+                playerConns[i] = connection;
+                System.out.println("Player " + (i + 1) + " connected");
+
+                threadPool.execute(connection);
             }
+
+            listener.close();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        System.out.println("All players connected, starting game...");
     }
 
-    class PlayerConnection implements Runnable {
-        Player player;
-    
-        Socket socket;
-        Scanner reciever;
-        PrintWriter sender;
-    
-        public PlayerConnection(Socket socket, Player player) {
-            this.socket = socket;
-            this.player = player;
-        }
-    
-        @Override
-        public void run() {
-            try {
-                setup();
-                processCommands();
-    
-            } catch (Exception e) {
-                e.printStackTrace();
-    
-            } finally {
-                try {
-                    socket.close();
-    
-                } catch (IOException e) {
-                }
-            }
-        }
-    
-        private void setup() throws IOException {
-            System.out.println("Player " + player.getName() + " connected (ID: " + player.getId() + ")");
-            reciever = new Scanner(socket.getInputStream());
-            sender = new PrintWriter(socket.getOutputStream(), true);
-            sender.println("Welcome Player " + player.getName() + " (ID: " + player.getId() + ")");
-        }
-    
-        private void processCommands() {
-            while (reciever.hasNextLine()) {
-                String command = reciever.nextLine();
-                System.out.println("Recieved command: " + command + " from player " + player.getName() + " (ID: " + player.getId() + ")");
-    
-                // for(PlayerConnection player : playerConns) {
-                //     if(player != this && player != null) {
-                //         player.sender.println("PLAYER " + UID + " : " + command);
-                //     }
-                // }
+    public void stop() {
+        for (PlayerConnection playerConn : playerConns) {
+            if (playerConn != null) {
+                playerConn.terminate();
             }
         }
     }

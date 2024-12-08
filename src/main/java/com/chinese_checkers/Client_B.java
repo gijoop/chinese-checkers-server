@@ -8,14 +8,14 @@ import com.chinese_checkers.Message.ConnectMessage;
 import com.chinese_checkers.Message.MoveMessage;
 
 
-public class Client {
+public class Client_B {
 
     private Socket socket;
     private Scanner in;
     private PrintWriter out;
     private String serverAddress;
     
-    public Client(String serverAddress) throws Exception {
+    public Client_B(String serverAddress) throws Exception {
         this.serverAddress = serverAddress;
     }
 
@@ -25,16 +25,19 @@ public class Client {
         in = new Scanner(socket.getInputStream());
         out = new PrintWriter(socket.getOutputStream(), true);
 
-        out.println(new ConnectMessage("test").toJson());
 
         System.out.println(in.nextLine());
+
+        Thread.sleep(5000);
+
+        out.println(new ConnectMessage("test_delay").toJson());
 
         socket.close();
     }
 
     public static void main(String[] args) throws Exception {
         try {
-            Client client = new Client("localhost");
+            Client_B client = new Client_B("localhost");
             client.connect();
         } catch (Exception e) {
             e.printStackTrace();
