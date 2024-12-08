@@ -47,12 +47,14 @@ class Server {
 
             for (int i = 0; i < playerCount; i++) {
                 playerConns[i] = new PlayerConnection(listener, socketLock);
+
                 threadPool.execute(playerConns[i]);
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+
 
     }
 
@@ -64,3 +66,4 @@ class Server {
         }
     }
 }
+

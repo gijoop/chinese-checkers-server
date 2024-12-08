@@ -75,18 +75,22 @@ class PlayerConnection implements Runnable {
             return null;
 
         }
+
     }
 
     @Override
     public void run() {
         try {
+
             establishConnection();
             parseCommands();
+
 
         } catch (Exception e) {
             e.printStackTrace();
 
         } finally {
+
             terminate();
         }
     }
@@ -116,5 +120,6 @@ class PlayerConnection implements Runnable {
             }
         }
     }
+
 
 }

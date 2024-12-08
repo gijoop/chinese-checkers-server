@@ -4,6 +4,7 @@ import java.net.Socket;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
+
 import com.chinese_checkers.Message.ConnectMessage;
 import com.chinese_checkers.Message.MoveMessage;
 
@@ -13,6 +14,7 @@ public class Client {
     private Socket socket;
     private Scanner in;
     private PrintWriter out;
+
     private String serverAddress;
     
     public Client(String serverAddress) throws Exception {
@@ -41,4 +43,5 @@ public class Client {
             e.printStackTrace();
         }
     }
+
 }
