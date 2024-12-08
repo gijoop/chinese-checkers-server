@@ -28,6 +28,7 @@ public class Client {
         out.println(new ConnectMessage("test").toJson());
 
         System.out.println(in.nextLine());
+        Thread.sleep(5000);
 
         socket.close();
     }

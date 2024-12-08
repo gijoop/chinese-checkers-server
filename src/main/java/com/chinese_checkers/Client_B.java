@@ -25,12 +25,11 @@ public class Client_B {
         in = new Scanner(socket.getInputStream());
         out = new PrintWriter(socket.getOutputStream(), true);
 
-
-        System.out.println(in.nextLine());
-
         Thread.sleep(5000);
-
+        
         out.println(new ConnectMessage("test_delay").toJson());
+        System.out.println(in.nextLine());
+        Thread.sleep(5000);
 
         socket.close();
     }

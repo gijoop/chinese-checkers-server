@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -14,28 +15,49 @@ import com.chinese_checkers.Message.Message;
 class PlayerConnection implements Runnable {
 
     private Player player;
+    private ServerSocket listener;
     private Socket clientSocket;
     private BufferedReader reciever;
     private PrintWriter sender;
     private CommandParser commandParser = CommandParser.getInstance();
+    private ReentrantLock socketLock;
 
-    public PlayerConnection(Socket clientSocket, Player player) {
-        this.clientSocket = clientSocket;
-        this.player = player;
-        setup();
-    }
 
-    public PlayerConnection(Socket clientSocket) {
-        this.clientSocket = clientSocket;
-        this.player = null;
-        setup();
+    public PlayerConnection(ServerSocket listener, ReentrantLock socketLock) {
+        this.listener = listener;
+        this.socketLock = socketLock;
     }
 
     public void send(Message message) {
         sender.println(message.toJson());
     }
 
+    private void establishConnection() {
+        socketLock.lock();
+        try {
+            clientSocket = listener.accept();
+
+            reciever = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            sender = new PrintWriter(clientSocket.getOutputStream(), true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            socketLock.unlock();
+        }
+
+        ConnectMessage connectMessage = waitForConnectMessage();
+        if (connectMessage == null) {
+            System.out.println("Invalid connection from player " + player.getName());
+            terminate();
+        }
+
+        System.out.println("Player " + connectMessage.getName() + " connected");
+        player = new Player(connectMessage.getName(), Server.getID(), connectMessage.getColor());
+        
+    }
+
     public ConnectMessage waitForConnectMessage() {
+
         try {
             String line = reciever.readLine();
             if (line == null) return null;
@@ -59,8 +81,8 @@ class PlayerConnection implements Runnable {
     @Override
     public void run() {
         try {
-            setup();
-            processCommands();
+            establishConnection();
+            parseCommands();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -78,20 +100,7 @@ class PlayerConnection implements Runnable {
         }
     }
 
-    public void setPlayer(Player player) {
-        this.player = player;
-    }
-
-    private void setup() {
-        try {
-            reciever = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            sender = new PrintWriter(clientSocket.getOutputStream(), true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void processCommands() {
+    private void parseCommands() {
         while (true) {
             try {
                 String line = reciever.readLine();

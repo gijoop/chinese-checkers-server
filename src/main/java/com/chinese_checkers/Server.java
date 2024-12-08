@@ -2,18 +2,19 @@ package com.chinese_checkers;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.chinese_checkers.Message.ConnectMessage;
-
 class Server {
+    private static int ID = 1000;
+    public static int getID() {
+        return ID++;
+    }
+    
     private final int playerCount;
     private final int port;
 
-    private int latestID = 1000;
     private PlayerConnection[] playerConns;
     private CommandParser commandParser;
     private ServerSocket listener;
@@ -30,7 +31,6 @@ class Server {
         this.port = port;
         this.commandParser = CommandParser.getInstance();
 
-        // Define commands
         commandParser.addCommand("move", msg -> System.out.println("Move command received"));
         commandParser.addCommand("connect", msg -> System.out.println("Connect command received"));
         commandParser.addCommand("disconnect", msg -> System.out.println("Disconnect command received"));
@@ -43,30 +43,12 @@ class Server {
         try {
             listener = new ServerSocket(port);
             ExecutorService threadPool = Executors.newFixedThreadPool(playerCount);
-            //ReentrantLock socketLock = new ReentrantLock();
+            ReentrantLock socketLock = new ReentrantLock();
 
             for (int i = 0; i < playerCount; i++) {
-                Socket clientSocket = listener.accept();
-
-                PlayerConnection connection = new PlayerConnection(clientSocket);
-                ConnectMessage connectMessage = connection.waitForConnectMessage();
-                if (connectMessage == null) {
-                    System.out.println("Invalid connection from player " + (i + 1));
-                    connection.terminate();
-                    i--;
-                    continue;
-                }
-
-                // Initialize the player and add to the list
-                Player player = new Player(connectMessage.getName(), latestID++, connectMessage.getColor());
-                connection.setPlayer(player);
-                playerConns[i] = connection;
-                System.out.println("Player " + (i + 1) + " connected");
-
-                threadPool.execute(connection);
+                playerConns[i] = new PlayerConnection(listener, socketLock);
+                threadPool.execute(playerConns[i]);
             }
-
-            listener.close();
 
         } catch (IOException e) {
             e.printStackTrace();
