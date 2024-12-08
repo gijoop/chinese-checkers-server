@@ -36,7 +36,6 @@ class PlayerConnection implements Runnable {
         socketLock.lock();
         try {
             clientSocket = listener.accept();
-
             reciever = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             sender = new PrintWriter(clientSocket.getOutputStream(), true);
         } catch (IOException e) {
