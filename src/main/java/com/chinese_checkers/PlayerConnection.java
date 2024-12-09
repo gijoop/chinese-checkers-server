@@ -9,32 +9,32 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.chinese_checkers.Message.AcknowledgeMessage;
-import com.chinese_checkers.Message.JoinMessage;
-import com.chinese_checkers.Message.Message;
-import com.chinese_checkers.Message.MoveMessage;
-import com.chinese_checkers.Message.ServerMoveMessage;
+import com.chinese_checkers.comms.Message.AcknowledgeMessage;
+import com.chinese_checkers.comms.Message.JoinMessage;
+import com.chinese_checkers.comms.Message.Message;
+import com.chinese_checkers.comms.Message.MoveMessage;
 
 class PlayerConnection implements Runnable {
 
+    private Server server;
     private Player player;
     private ServerSocket listener;
     private Socket clientSocket;
     private BufferedReader reciever;
     private PrintWriter sender;
-    private CommandParser commandParser = CommandParser.getInstance();
+    private CommandParser commandParser;
     private ReentrantLock socketLock;
     private boolean terminated = false;
     private boolean connected = false;
 
 
-    public PlayerConnection(ServerSocket listener, ReentrantLock socketLock, Player player) {
+    public PlayerConnection(ServerSocket listener, ReentrantLock socketLock, Server server) {
         this.listener = listener;
         this.socketLock = socketLock;
-        this.player = player;
+        this.server = server;
+        this.commandParser = new CommandParser();
 
-        // Add command callbacks for messages that are bound to player
-        commandParser.addCommand("move", msg -> moveCallback((MoveMessage)msg));
+        commandParser.addCommand("move", msg -> server.moveCallback((MoveMessage) msg, player));
     }
 
     public void send(Message message) {
@@ -74,8 +74,8 @@ class PlayerConnection implements Runnable {
         }
 
         connected = true;
+        player = new Player(connectMessage.getName(), server.getplayerID());
         System.out.println("Player " + connectMessage.getName() + " connected");
-        player.setName(connectMessage.getName());
         
     }
 
@@ -132,10 +132,4 @@ class PlayerConnection implements Runnable {
             }
         }
     }
-
-    private void moveCallback(MoveMessage msg) {
-        commandParser.parseCommand(new ServerMoveMessage(msg, player.getId()));
-        System.out.println("Move command received");
-    }
-
 }

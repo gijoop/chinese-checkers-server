@@ -5,11 +5,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.util.Scanner;
 
-import com.chinese_checkers.Message.JoinMessage;
-import com.chinese_checkers.Message.MoveMessage;
-import com.chinese_checkers.Player.CheckerColor;
+import com.chinese_checkers.comms.Message.JoinMessage;
+import com.chinese_checkers.comms.Message.MoveMessage;
 
 
 public class Client_CLI {

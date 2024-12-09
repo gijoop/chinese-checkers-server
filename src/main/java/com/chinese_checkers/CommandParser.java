@@ -2,38 +2,24 @@ package com.chinese_checkers;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-import com.chinese_checkers.Message.Message;
+import com.chinese_checkers.comms.Message.Message;
 
-public class CommandParser
-{
-    private static volatile CommandParser instance;
+public class CommandParser {
+
     private final ConcurrentHashMap<String, Consumer<Message>> commands = new ConcurrentHashMap<>();
 
-    private CommandParser() {
-    }
-
-    public static CommandParser getInstance() {
-        if (instance == null) {
-            synchronized (CommandParser.class) {
-                if (instance == null) {
-                    instance = new CommandParser();
-                }
-            }
-        }
-        return instance;
-    }
+    public CommandParser() {}
 
     public void parseCommand(Message msg) {
         if (commands.containsKey(msg.getType())) {
             commands.get(msg.getType()).accept(msg);
-        }
-        else {
+        } else {
             System.out.println("Command not found for type: " + msg.getType());
         }
     }
 
     public void addCommand(String msgType, Consumer<Message> action) {
-        if (commands.containsKey(msgType)){
+        if (commands.containsKey(msgType)) {
             commands.remove(msgType);
         }
         commands.put(msgType, action);
@@ -43,3 +29,4 @@ public class CommandParser
         commands.clear();
     }
 }
+

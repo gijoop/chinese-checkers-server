@@ -29,7 +29,7 @@ public class CLI {
                 }
                 
                 try {
-                    Integer.parseInt(tokens[1]);
+                    port = Integer.parseInt(tokens[1]);
                 } catch (NumberFormatException e) {
                     System.out.println("Port must be an integer");
                     continue;
@@ -48,7 +48,7 @@ public class CLI {
                 }
                 
                 try {
-                    Integer.parseInt(tokens[1]);
+                    playerCount = Integer.parseInt(tokens[1]);
                 } catch (NumberFormatException e) {
                     System.out.println("Player count must be an integer");
                     continue;
@@ -58,6 +58,7 @@ public class CLI {
                     System.out.println("Player count must be between 2 and 10");
                     continue;
                 }
+
 
                 System.out.println("Player count set to " + playerCount);
             } else if (tokens[0].equals("start")) {
