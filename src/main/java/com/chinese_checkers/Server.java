@@ -9,6 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.chinese_checkers.comms.Message.JoinMessage;
 import com.chinese_checkers.comms.Message.Message;
 import com.chinese_checkers.comms.Message.MoveMessage;
+import com.chinese_checkers.comms.CommandParser;
 
 class Server {
     private static int playerID = 1000;

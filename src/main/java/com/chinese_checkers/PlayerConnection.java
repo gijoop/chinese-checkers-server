@@ -8,6 +8,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.concurrent.locks.ReentrantLock;
+import com.chinese_checkers.comms.Message.FromClient.*;
+import com.chinese_checkers.comms.Message.FromServer.*;
+import com.chinese_checkers.comms.CommandParser;
 
 import com.chinese_checkers.comms.Message.AcknowledgeMessage;
 import com.chinese_checkers.comms.Message.JoinMessage;
@@ -68,7 +71,7 @@ class PlayerConnection implements Runnable {
             socketLock.unlock();
         }
 
-        JoinMessage connectMessage = waitForJoinMessage();
+        RequestJoinMessage connectMessage = waitForJoinMessage();
         if (connectMessage == null) {
             throw new IOException("Invalid connection from player " + player.getName());
         }
@@ -79,16 +82,17 @@ class PlayerConnection implements Runnable {
         
     }
 
-    public JoinMessage waitForJoinMessage() {
+    public RequestJoinMessage waitForJoinMessage() {
 
         try {
             String line = reciever.readLine();
+            System.out.println("Received: " + line);
             if (line == null) return null;
-            Message msg = Message.fromJson(line);
+                Message msg = Message.fromJson(line);
 
-            if (msg != null && msg.getType().equals("join")) {
-                sender.println(new AcknowledgeMessage("Successfully connected").toJson());
-                return (JoinMessage) msg;
+            if (msg != null && msg.getType().equals("request_join")) {
+                sender.println(new ResponseMessage("request_join", "join request accepted").toJson());
+                return (RequestJoinMessage) msg;
             } else {
                 sender.println("ERROR: Invalid join message");
                 return null;
