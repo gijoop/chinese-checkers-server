@@ -8,6 +8,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.concurrent.locks.ReentrantLock;
+import com.chinese_checkers.comms.Message.FromClient.*;
+import com.chinese_checkers.comms.Message.FromServer.*;
+import com.chinese_checkers.comms.CommandParser;
 
 import com.chinese_checkers.comms.Message.AcknowledgeMessage;
 import com.chinese_checkers.comms.Message.JoinMessage;
@@ -18,6 +21,7 @@ class PlayerConnection implements Runnable {
 
     private Server server;
     private Player player;
+    private int playerID;
     private ServerSocket listener;
     private Socket clientSocket;
     private BufferedReader reciever;
@@ -28,13 +32,16 @@ class PlayerConnection implements Runnable {
     private boolean connected = false;
 
 
-    public PlayerConnection(ServerSocket listener, ReentrantLock socketLock, Server server) {
+    public PlayerConnection(ServerSocket listener, ReentrantLock socketLock, Server server, int playerID) {
         this.listener = listener;
         this.socketLock = socketLock;
         this.server = server;
         this.commandParser = new CommandParser();
 
-        commandParser.addCommand("move", msg -> server.moveCallback((MoveMessage) msg, player));
+        this.playerID = playerID;
+
+        //commandParser.addCommand("move", msg -> server.moveCallback((MoveMessage) msg, player));
+        commandParser.addCommand("move_request", msg -> server.moveCallback((MoveRequestMessage) msg, player));
     }
 
     public void send(Message message) {
@@ -68,27 +75,31 @@ class PlayerConnection implements Runnable {
             socketLock.unlock();
         }
 
-        JoinMessage connectMessage = waitForJoinMessage();
+        RequestJoinMessage connectMessage = waitForJoinMessage();
         if (connectMessage == null) {
             throw new IOException("Invalid connection from player " + player.getName());
         }
 
         connected = true;
-        player = new Player(connectMessage.getName(), server.getplayerID());
+        player = new Player(connectMessage.getName(), playerID);
         System.out.println("Player " + connectMessage.getName() + " connected");
-        
+
+        // send data to player
+        Message msg = new SelfDataMessage(playerID);
+        send(msg)   ;
     }
 
-    public JoinMessage waitForJoinMessage() {
+    public RequestJoinMessage waitForJoinMessage() {
 
         try {
             String line = reciever.readLine();
+            System.out.println("Received: " + line);
             if (line == null) return null;
-            Message msg = Message.fromJson(line);
+                Message msg = Message.fromJson(line);
 
-            if (msg != null && msg.getType().equals("join")) {
-                sender.println(new AcknowledgeMessage("Successfully connected").toJson());
-                return (JoinMessage) msg;
+            if (msg != null && msg.getType().equals("request_join")) {
+                sender.println(new ResponseMessage("request_join", "join request accepted").toJson());
+                return (RequestJoinMessage) msg;
             } else {
                 sender.println("ERROR: Invalid join message");
                 return null;

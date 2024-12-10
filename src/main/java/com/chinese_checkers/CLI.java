@@ -14,7 +14,7 @@ public class CLI {
         System.out.println("Default port: 58901\nDefault player count: 2");
 
         int playerCount = 2;
-        int port = 58901;
+        int port = 12345;
         Server server = null;
 
         while (true) {

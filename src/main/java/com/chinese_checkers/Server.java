@@ -2,13 +2,20 @@ package com.chinese_checkers;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.HashMap;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.chinese_checkers.comms.Message.FromClient.MoveRequestMessage;
+import com.chinese_checkers.comms.Message.FromServer.MovePlayerMessage;
+import com.chinese_checkers.comms.Message.FromServer.MovePlayerMessage;
+import com.chinese_checkers.comms.Message.FromServer.ResponseMessage;
 import com.chinese_checkers.comms.Message.JoinMessage;
 import com.chinese_checkers.comms.Message.Message;
 import com.chinese_checkers.comms.Message.MoveMessage;
+import com.chinese_checkers.comms.CommandParser;
 
 class Server {
     private static int playerID = 1000;
@@ -24,7 +31,7 @@ class Server {
     private final int playerCount;
     private final int port;
 
-    private PlayerConnection playerConns[];
+    private HashMap<Integer, PlayerConnection> playerConnections;
     private ServerSocket listener;
     private CommandParser commandParser = new CommandParser();
     private ReentrantLock socketLock = new ReentrantLock();
@@ -45,16 +52,17 @@ class Server {
 
     public void start() {
         System.out.println("Server started on port " + port);
-        playerConns = new PlayerConnection[playerCount];
+        playerConnections = new HashMap<>(playerCount);
 
         try {
             listener = new ServerSocket(port);
             ExecutorService threadPool = Executors.newFixedThreadPool(playerCount);
 
             for (int i = 0; i < playerCount; i++) {
-                PlayerConnection playerConn = new PlayerConnection(listener, socketLock, this);
+                int playerID = getplayerID();
+                PlayerConnection playerConn = new PlayerConnection(listener, socketLock, this, playerID);
                 threadPool.execute(playerConn);
-                playerConns[i] = playerConn;
+                playerConnections.put(playerID, playerConn);
             }
 
         } catch (IOException e) {
@@ -64,15 +72,23 @@ class Server {
         System.out.println("Waiting for players to connect...");
 
         while (true) {
-            boolean allConnected = true;
-            for (PlayerConnection playerConn : playerConns) {
-                if (playerConn == null || !playerConn.isConnected()) {
-                    allConnected = false;
-                    break;
+            // count connected players
+            int connectedPlayers = 0;
+            for (PlayerConnection connection : playerConnections.values()) {
+                if (connection.isConnected()) {
+                    connectedPlayers++;
                 }
             }
-            if (allConnected) {
+
+            if (connectedPlayers == playerCount) {
                 break;
+            }
+
+            try {
+                // the CPU is eepy
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
 
@@ -81,11 +97,10 @@ class Server {
     }
 
     public void stop() {
-        for (PlayerConnection playerConn : playerConns) {
-            if (playerConn != null) {
-                playerConn.terminate();
-            }
+        for (PlayerConnection connection : playerConnections.values()) {
+            connection.terminate();
         }
+
         try {
             listener.close();
         } catch (IOException e) {
@@ -93,19 +108,32 @@ class Server {
     }
 
     private void sendToAll(Message msg) {
-        for (PlayerConnection playerConn : playerConns) {
-            if (playerConn != null) {
-                playerConn.send(msg);
-            }
+        for (PlayerConnection connections : playerConnections.values()) {
+            connections.send(msg);
         }
     }
 
-    public void moveCallback(MoveMessage msg, Player player) {
-        System.out.println("Player " + player.getName() + " moved from " + msg.getFrom() + " to " + msg.getTo());
+    private void sendToPlayer(int playerID, Message msg) {
+        PlayerConnection playerConn = playerConnections.get(playerID);
+        if (playerConn != null) {
+            playerConn.send(msg);
+        }
+    }
+
+    public void moveCallback(MoveRequestMessage msg, Player player) {
+        // validate s, q, r
+        // validate pawnID
+
+        System.out.println("Player " + player.getName() + " moved pawn " + msg.pawnID + " to (" + msg.s + ", " + msg.q + ", " + msg.r + ")");
+
+        // inform the player that the move was successful
+        Message confirmMove = new ResponseMessage("move_request", "success");
+        sendToPlayer(player.getId(), confirmMove);
 
         // Send the move to all players
+        Message validatedMoveMsg = new MovePlayerMessage(player.getId(), msg.pawnID, msg.s, msg.q, msg.r);
 
-        sendToAll(msg);
+        sendToAll(validatedMoveMsg);
     }
 
     private void joinCallback(JoinMessage msg) {
