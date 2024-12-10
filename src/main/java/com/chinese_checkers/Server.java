@@ -27,17 +27,11 @@ class Server {
     public int getplayerID() {
         return playerID++;
     }
-
-    public int generatePlayerID() {
-        Random rand = new Random();
-        return rand.nextInt(Integer.MAX_VALUE);
-    }
     
     private final int playerCount;
     private final int port;
 
-    private HashMap<Integer, PlayerConnection> playerConnections = new HashMap<>();
-    // private PlayerConnection playerConns[];
+    private HashMap<Integer, PlayerConnection> playerConnections;
     private ServerSocket listener;
     private CommandParser commandParser = new CommandParser();
     private ReentrantLock socketLock = new ReentrantLock();
@@ -58,19 +52,17 @@ class Server {
 
     public void start() {
         System.out.println("Server started on port " + port);
-        // playerConns = new PlayerConnection[playerCount];
-        playerConnections = new HashMap<>();
+        playerConnections = new HashMap<>(playerCount);
 
         try {
             listener = new ServerSocket(port);
             ExecutorService threadPool = Executors.newFixedThreadPool(playerCount);
 
             for (int i = 0; i < playerCount; i++) {
-                int playerID = generatePlayerID();
+                int playerID = getplayerID();
                 PlayerConnection playerConn = new PlayerConnection(listener, socketLock, this, playerID);
                 threadPool.execute(playerConn);
                 playerConnections.put(playerID, playerConn);
-                // playerConns[i] = playerConn;
             }
 
         } catch (IOException e) {
@@ -100,19 +92,6 @@ class Server {
             }
         }
 
-//        while (true) {
-//            boolean allConnected = true;
-//            for (PlayerConnection playerConn : playerConns) {
-//                if (playerConn == null || !playerConn.isConnected()) {
-//                    allConnected = false;
-//                    break;
-//                }
-//            }
-//            if (allConnected) {
-//                break;
-//            }
-//        }
-
         System.out.println("All players connected, starting game");
 
     }
@@ -121,11 +100,7 @@ class Server {
         for (PlayerConnection connection : playerConnections.values()) {
             connection.terminate();
         }
-//        for (PlayerConnection playerConn : playerConns) {
-//            if (playerConn != null) {
-//                playerConn.terminate();
-//            }
-//        }
+
         try {
             listener.close();
         } catch (IOException e) {
@@ -136,12 +111,6 @@ class Server {
         for (PlayerConnection connections : playerConnections.values()) {
             connections.send(msg);
         }
-
-//        for (PlayerConnection playerConn : playerConns) {
-//            if (playerConn != null) {
-//                playerConn.send(msg);
-//            }
-//        }
     }
 
     private void sendToPlayer(int playerID, Message msg) {
