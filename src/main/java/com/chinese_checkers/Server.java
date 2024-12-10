@@ -17,7 +17,7 @@ import com.chinese_checkers.comms.Message.MoveMessage;
 import com.chinese_checkers.comms.CommandParser;
 
 class Server {
-    private static int playerID = 1000;
+    private int playerID = 1000;
     
     /**
      * Get the next avaiable player ID
