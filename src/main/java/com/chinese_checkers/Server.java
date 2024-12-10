@@ -32,6 +32,7 @@ class Server {
 
     private HashMap<Integer, PlayerConnection> playerConnections;
     private ServerSocket listener;
+    private ExecutorService connectionPool;
     private CommandParser commandParser = new CommandParser();
     private ReentrantLock socketLock = new ReentrantLock();
 
@@ -55,12 +56,12 @@ class Server {
 
         try {
             listener = new ServerSocket(port);
-            ExecutorService threadPool = Executors.newFixedThreadPool(playerCount);
+            connectionPool = Executors.newFixedThreadPool(playerCount);
 
             for (int i = 0; i < playerCount; i++) {
                 int playerID = getplayerID();
                 PlayerConnection playerConn = new PlayerConnection(listener, socketLock, this, playerID);
-                threadPool.execute(playerConn);
+                connectionPool.execute(playerConn);
                 playerConnections.put(playerID, playerConn);
             }
 
@@ -99,6 +100,7 @@ class Server {
         for (PlayerConnection connection : playerConnections.values()) {
             connection.terminate();
         }
+        connectionPool.shutdown();
 
         try {
             listener.close();

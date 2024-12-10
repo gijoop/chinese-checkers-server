@@ -75,7 +75,7 @@ class PlayerConnection implements Runnable {
     }
 
     private void startListener() throws IOException {
-        while (true) {
+        while (!terminated) {
             try {
                 String line = reciever.readLine(); // blocking if no line
                 if (line == null) {

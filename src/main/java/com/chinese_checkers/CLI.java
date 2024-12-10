@@ -72,9 +72,14 @@ public class CLI {
                 if (server != null) {
                     server.stop();
                 }
+                server = null;
                 System.out.println("Server stopped");
             }
             else if (tokens[0].equals("exit")) {
+                if (server != null) {
+                    server.stop();
+                }
+                System.out.println("Exiting...");
                 break;
             } else if (tokens[0].trim().equals("")) {
                 continue;  
