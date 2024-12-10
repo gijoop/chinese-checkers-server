@@ -21,6 +21,7 @@ class PlayerConnection implements Runnable {
 
     private Server server;
     private Player player;
+    private int playerID;
     private ServerSocket listener;
     private Socket clientSocket;
     private BufferedReader reciever;
@@ -31,13 +32,16 @@ class PlayerConnection implements Runnable {
     private boolean connected = false;
 
 
-    public PlayerConnection(ServerSocket listener, ReentrantLock socketLock, Server server) {
+    public PlayerConnection(ServerSocket listener, ReentrantLock socketLock, Server server, int playerID) {
         this.listener = listener;
         this.socketLock = socketLock;
         this.server = server;
         this.commandParser = new CommandParser();
 
-        commandParser.addCommand("move", msg -> server.moveCallback((MoveMessage) msg, player));
+        this.playerID = playerID;
+
+        //commandParser.addCommand("move", msg -> server.moveCallback((MoveMessage) msg, player));
+        commandParser.addCommand("move_request", msg -> server.moveCallback((MoveRequestMessage) msg, player));
     }
 
     public void send(Message message) {
@@ -77,9 +81,12 @@ class PlayerConnection implements Runnable {
         }
 
         connected = true;
-        player = new Player(connectMessage.getName(), server.getplayerID());
+        player = new Player(connectMessage.getName(), playerID);
         System.out.println("Player " + connectMessage.getName() + " connected");
-        
+
+        // send data to player
+        Message msg = new SelfDataMessage(playerID);
+        send(msg)   ;
     }
 
     public RequestJoinMessage waitForJoinMessage() {
