@@ -10,12 +10,8 @@ import java.net.SocketException;
 import java.util.concurrent.locks.ReentrantLock;
 import com.chinese_checkers.comms.Message.FromClient.*;
 import com.chinese_checkers.comms.Message.FromServer.*;
-import com.chinese_checkers.comms.CommandParser;
-
-import com.chinese_checkers.comms.Message.AcknowledgeMessage;
-import com.chinese_checkers.comms.Message.JoinMessage;
 import com.chinese_checkers.comms.Message.Message;
-import com.chinese_checkers.comms.Message.MoveMessage;
+import com.chinese_checkers.comms.CommandParser;
 
 class PlayerConnection implements Runnable {
 
@@ -30,6 +26,7 @@ class PlayerConnection implements Runnable {
     private ReentrantLock socketLock;
     private boolean terminated = false;
     private boolean connected = false;
+    private boolean waitingToJoin = false;
 
 
     public PlayerConnection(ServerSocket listener, ReentrantLock socketLock, Server server, int playerID) {
@@ -40,6 +37,7 @@ class PlayerConnection implements Runnable {
         
         commandParser = new CommandParser();
         commandParser.addCommand("move_request", msg -> server.moveCallback((MoveRequestMessage) msg, player));
+        commandParser.addCommand("request_join", msg -> joinCallback((RequestJoinMessage) msg));
     }
 
     public void send(Message message) {
@@ -73,40 +71,7 @@ class PlayerConnection implements Runnable {
             socketLock.unlock();
         }
 
-        RequestJoinMessage connectMessage = waitForJoinMessage();
-        if (connectMessage == null) {
-            throw new IOException("Invalid connection from player " + player.getName());
-        }
-
-        connected = true;
-        player = new Player(connectMessage.getName(), playerID);
-        System.out.println("Player " + connectMessage.getName() + " connected");
-
-        // send data to player
-        Message msg = new SelfDataMessage(playerID);
-        send(msg)   ;
-    }
-
-    public RequestJoinMessage waitForJoinMessage() {
-
-        try {
-            String line = reciever.readLine();
-            System.out.println("Received: " + line);
-            if (line == null) return null;
-                Message msg = Message.fromJson(line);
-
-            if (msg != null && msg.getType().equals("request_join")) {
-                sender.println(new ResponseMessage("request_join", "join request accepted").toJson());
-                return (RequestJoinMessage) msg;
-            } else {
-                sender.println("ERROR: Invalid join message");
-                return null;
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        waitingToJoin = true;
     }
 
     private void startListener() throws IOException {
@@ -139,6 +104,22 @@ class PlayerConnection implements Runnable {
                 clientSocket.close();
             } catch (IOException e) {
             }
+        }
+    }
+
+    private void joinCallback(RequestJoinMessage msg) {
+        if (waitingToJoin) {
+            // Validate message
+
+            connected = true;
+            player = new Player(msg.getName(), playerID);
+            System.out.println("Player " + msg.getName() + " connected");
+
+            // send ACK to player
+            send(new SelfDataMessage(playerID));
+        }
+        else {
+            send(new ResponseMessage("request_join", "join request denied"));
         }
     }
 }
