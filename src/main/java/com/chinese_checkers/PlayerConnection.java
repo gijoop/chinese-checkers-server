@@ -36,11 +36,9 @@ class PlayerConnection implements Runnable {
         this.listener = listener;
         this.socketLock = socketLock;
         this.server = server;
-        this.commandParser = new CommandParser();
-
         this.playerID = playerID;
-
-        //commandParser.addCommand("move", msg -> server.moveCallback((MoveMessage) msg, player));
+        
+        commandParser = new CommandParser();
         commandParser.addCommand("move_request", msg -> server.moveCallback((MoveRequestMessage) msg, player));
     }
 
@@ -52,7 +50,7 @@ class PlayerConnection implements Runnable {
     public void run() {
         try {
             establishConnection();
-            parseCommands();
+            startListener();
 
         } catch (IOException e) {
             if(!terminated){
@@ -111,7 +109,7 @@ class PlayerConnection implements Runnable {
         }
     }
 
-    private void parseCommands() throws IOException {
+    private void startListener() throws IOException {
         while (true) {
             try {
                 String line = reciever.readLine(); // blocking if no line

@@ -10,7 +10,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.chinese_checkers.comms.Message.FromClient.MoveRequestMessage;
 import com.chinese_checkers.comms.Message.FromServer.MovePlayerMessage;
-import com.chinese_checkers.comms.Message.FromServer.MovePlayerMessage;
 import com.chinese_checkers.comms.Message.FromServer.ResponseMessage;
 import com.chinese_checkers.comms.Message.JoinMessage;
 import com.chinese_checkers.comms.Message.Message;
