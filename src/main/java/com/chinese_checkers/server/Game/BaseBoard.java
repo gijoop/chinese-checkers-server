@@ -5,55 +5,24 @@ import java.util.HashMap;
 public class BaseBoard implements Board {
     private HashMap<Integer, Pawn> pawns;
 
-    public BaseBoard() {
+    public BaseBoard(int numPlayers) {
+
         pawns = new HashMap<>();
-    }
-
-    @Override
-    public void setPawns(Pawn[] pawnsArray) {
-        pawns.clear();
-        for (int i = 0; i < pawnsArray.length; i++) {
-            if (pawnsArray[i] != null) {
-                pawns.put(i, pawnsArray[i]);
-            }
-        }
-    }
-
-    @Override
-    public Pawn[] getPawns() {
-        return pawns.values().toArray(new Pawn[0]);
-    }
-
-    @Override
-    public Pawn[] getPawns(Player.PawnColor color) {
-        return pawns.values().stream()
-                .filter(pawn -> pawn.getColor() == color)
-                .toArray(Pawn[]::new);
+        pawns.put(0, new Pawn(0, 0, 0, Player.PawnColor.RED));
     }
 
     @Override
     public void movePiece(Pawn pawn, int s, int q, int r) {
-        int key = getKey(pawn.getS(), pawn.getQ(), pawn.getR());
-        pawns.remove(key);
-        pawn.setS(s);
-        pawn.setQ(q);
-        pawn.setR(r);
-        key = getKey(s, q, r);
-        pawns.put(key, pawn);
+        return;
     }
 
     @Override
     public Pawn getPawnAt(int s, int q, int r) {
-        int key = getKey(s, q, r);
-        return pawns.get(key);
+        return pawns.get(0);
     }
 
     @Override
     public Pawn getPawnById(int id) {
-        return pawns.get(id);
-    }
-
-    private int getKey(int s, int q, int r) {
-        return s * 10000 + q * 100 + r;
+        return pawns.get(0);
     }
 }

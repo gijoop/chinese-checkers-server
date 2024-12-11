@@ -14,9 +14,7 @@ import com.chinese_checkers.server.Game.BaseBoard;
 import com.chinese_checkers.server.Game.BaseMoveValidator;
 import com.chinese_checkers.server.Game.GameManager;
 import com.chinese_checkers.server.Game.Player;
-import com.chinese_checkers.comms.Message.JoinMessage;
 import com.chinese_checkers.comms.Message.Message;
-import com.chinese_checkers.comms.CommandParser;
 
 public class Server {
     private int playerID = 1000;
@@ -36,7 +34,6 @@ public class Server {
     private GameManager gameManager;
     private ServerSocket listener;
     private ExecutorService connectionPool;
-    private CommandParser commandParser = new CommandParser();
     private ReentrantLock socketLock = new ReentrantLock();
 
     public Server(final int playerCount, final int port) throws IllegalArgumentException {
@@ -49,9 +46,7 @@ public class Server {
 
         this.playerCount = playerCount;
         this.port = port;
-        this.gameManager = new GameManager(new BaseBoard(), new BaseMoveValidator());
-
-        commandParser.addCommand("join", msg -> joinCallback((JoinMessage)msg));
+        this.gameManager = new GameManager(new BaseBoard(playerCount), new BaseMoveValidator());
     }
 
     public void start() {
@@ -139,10 +134,6 @@ public class Server {
         Message validatedMoveMsg = new MovePlayerMessage(player.getId(), msg.pawnID, msg.s, msg.q, msg.r);
 
         sendToAll(validatedMoveMsg);
-    }
-
-    private void joinCallback(JoinMessage msg) {
-        System.out.println("Unexpected join command received");
     }
 
 }
