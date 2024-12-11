@@ -1,28 +1,40 @@
 package com.chinese_checkers.server.Game;
 
 public class Pawn {
-    private int x;
-    private int y;
-    private int z;
+    private int s;
+    private int q;
+    private int r;
     private Player.PawnColor color;
 
-    public Pawn(int x, int y, int z, Player.PawnColor color) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+    public Pawn(int s, int q, int r, Player.PawnColor color) {
+        this.s = s;
+        this.q = q;
+        this.r = r;
         this.color = color;
     }
 
-    public int getX() {
-        return x;
+    public int getS() {
+        return s;
     }
 
-    public int getY() {
-        return y;
+    public int getQ() {
+        return q;
     }
 
-    public int getZ() {
-        return z;
+    public int getR() {
+        return r;
+    }
+
+    public void setS(int s) {
+        this.s = s;
+    }
+
+    public void setQ(int q) {
+        this.q = q;
+    }
+
+    public void setR(int r) {
+        this.r = r;
     }
 
     public Player.PawnColor getColor() {

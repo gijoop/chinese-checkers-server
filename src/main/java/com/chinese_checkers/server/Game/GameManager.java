@@ -9,7 +9,8 @@ public class GameManager {
         this.moveValidator = moveValidator;
     }
 
-    public boolean checkAndMove(Pawn pawn, int s, int q, int r) {
+    public boolean checkAndMove(Integer pawnId, int s, int q, int r) {
+        Pawn pawn = board.getPawnById(pawnId);
         if (moveValidator.isValidMove(board, pawn, s, q, r)) {
             board.movePiece(pawn, s, q, r);
             return true;

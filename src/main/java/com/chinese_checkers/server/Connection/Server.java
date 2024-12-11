@@ -10,6 +10,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.chinese_checkers.comms.Message.FromClient.MoveRequestMessage;
 import com.chinese_checkers.comms.Message.FromServer.MovePlayerMessage;
 import com.chinese_checkers.comms.Message.FromServer.ResponseMessage;
+import com.chinese_checkers.server.Game.BaseBoard;
+import com.chinese_checkers.server.Game.BaseMoveValidator;
+import com.chinese_checkers.server.Game.GameManager;
 import com.chinese_checkers.server.Game.Player;
 import com.chinese_checkers.comms.Message.JoinMessage;
 import com.chinese_checkers.comms.Message.Message;
@@ -30,6 +33,7 @@ public class Server {
     private final int port;
 
     private HashMap<Integer, PlayerConnection> playerConnections;
+    private GameManager gameManager;
     private ServerSocket listener;
     private ExecutorService connectionPool;
     private CommandParser commandParser = new CommandParser();
@@ -45,6 +49,7 @@ public class Server {
 
         this.playerCount = playerCount;
         this.port = port;
+        this.gameManager = new GameManager(new BaseBoard(), new BaseMoveValidator());
 
         commandParser.addCommand("join", msg -> joinCallback((JoinMessage)msg));
     }
@@ -121,7 +126,7 @@ public class Server {
     }
 
     public void moveCallback(MoveRequestMessage msg, Player player) {
-        // validate s, q, r
+        gameManager.checkAndMove(msg.pawnID, msg.s, msg.q, msg.r);
         // validate pawnID
 
         System.out.println("Player " + player.getName() + " moved pawn " + msg.pawnID + " to (" + msg.s + ", " + msg.q + ", " + msg.r + ")");
