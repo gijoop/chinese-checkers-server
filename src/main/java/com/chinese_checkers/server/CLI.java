@@ -1,4 +1,6 @@
-package com.chinese_checkers;
+package com.chinese_checkers.server;
+
+import com.chinese_checkers.server.Connection.Server;
 
 public class CLI {
     public CLI() {

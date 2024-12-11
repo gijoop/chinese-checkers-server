@@ -1,9 +1,8 @@
-package com.chinese_checkers;
+package com.chinese_checkers.server.Connection;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
@@ -11,12 +10,12 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.chinese_checkers.comms.Message.FromClient.MoveRequestMessage;
 import com.chinese_checkers.comms.Message.FromServer.MovePlayerMessage;
 import com.chinese_checkers.comms.Message.FromServer.ResponseMessage;
+import com.chinese_checkers.server.Game.Player;
 import com.chinese_checkers.comms.Message.JoinMessage;
 import com.chinese_checkers.comms.Message.Message;
-import com.chinese_checkers.comms.Message.MoveMessage;
 import com.chinese_checkers.comms.CommandParser;
 
-class Server {
+public class Server {
     private int playerID = 1000;
     
     /**

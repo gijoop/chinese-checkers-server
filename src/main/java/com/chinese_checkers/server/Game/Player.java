@@ -1,15 +1,15 @@
-package com.chinese_checkers;
+package com.chinese_checkers.server.Game;
 
 public class Player {
-    public enum CheckerColor {
+    public enum PawnColor {
         RED, BLUE, GREEN, YELLOW, BLACK, WHITE
     }
 
     private String name;
-    private CheckerColor color;
+    private PawnColor color;
     private int id;
 
-    public Player(String name, int id, CheckerColor color) {
+    public Player(String name, int id, PawnColor color) {
         this.name = name;
         this.id = id;
         this.color = color;
@@ -35,7 +35,7 @@ public class Player {
         return id;
     }
 
-    public CheckerColor getColor() {
+    public PawnColor getColor() {
         return color;
     }
 }

@@ -1,4 +1,4 @@
-package com.chinese_checkers;
+package com.chinese_checkers.server.Connection;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,12 +10,12 @@ import java.net.SocketException;
 import java.util.concurrent.locks.ReentrantLock;
 import com.chinese_checkers.comms.Message.FromClient.*;
 import com.chinese_checkers.comms.Message.FromServer.*;
+import com.chinese_checkers.server.Game.Player;
 import com.chinese_checkers.comms.Message.Message;
 import com.chinese_checkers.comms.CommandParser;
 
-class PlayerConnection implements Runnable {
+public class PlayerConnection implements Runnable {
 
-    private Server server;
     private Player player;
     private int playerID;
     private ServerSocket listener;
@@ -32,7 +32,6 @@ class PlayerConnection implements Runnable {
     public PlayerConnection(ServerSocket listener, ReentrantLock socketLock, Server server, int playerID) {
         this.listener = listener;
         this.socketLock = socketLock;
-        this.server = server;
         this.playerID = playerID;
         
         commandParser = new CommandParser();

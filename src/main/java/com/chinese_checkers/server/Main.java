@@ -1,4 +1,4 @@
-package com.chinese_checkers;
+package com.chinese_checkers.server;
 
 public class Main {
     public static void main(String[] args) {
