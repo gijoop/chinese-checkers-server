@@ -31,11 +31,15 @@ public class Player {
         this.name = name;
     }
 
+    public void setColor(PawnColor color) {
+        this.color = color;
+    }
+
     public int getId() {
         return id;
     }
 
-    public PawnColor getColor() {
+    public PawnColor getPawnColor() {
         return color;
     }
 }

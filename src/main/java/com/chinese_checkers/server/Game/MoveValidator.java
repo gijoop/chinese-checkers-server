@@ -1,5 +1,12 @@
 package com.chinese_checkers.server.Game;
 
 public interface MoveValidator {
-    public boolean isValidMove(Board board, Pawn pawn, int s, int q, int r);
+    enum MoveResult {
+        SUCCESS,
+        INVALID_MOVE,
+        OCCUPIED,
+        OUT_OF_BOUNDS,
+        NONEXISTENT_PAWN
+    }
+    public MoveResult isValidMove(Board board, Pawn pawn, Position position);
 }

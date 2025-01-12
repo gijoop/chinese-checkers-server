@@ -92,8 +92,8 @@ public class PlayerConnection implements Runnable {
         return connected;
     }
 
-    public int getPlayerID() {
-        return player.getId();
+    public Player getPlayer() {
+        return player;
     }
 
     public void terminate() {
