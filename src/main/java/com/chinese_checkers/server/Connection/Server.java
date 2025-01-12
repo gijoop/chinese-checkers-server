@@ -14,6 +14,7 @@ import com.chinese_checkers.server.Game.BaseBoard;
 import com.chinese_checkers.server.Game.BaseMoveValidator;
 import com.chinese_checkers.server.Game.GameManager;
 import com.chinese_checkers.server.Game.Player;
+import com.chinese_checkers.server.Game.Position;
 import com.chinese_checkers.comms.Message.Message;
 
 public class Server {
@@ -46,7 +47,7 @@ public class Server {
 
         this.playerCount = playerCount;
         this.port = port;
-        this.gameManager = new GameManager(new BaseBoard(playerCount), new BaseMoveValidator());
+        this.gameManager = new GameManager(new BaseBoard(), new BaseMoveValidator(), playerConnections);
     }
 
     public void start() {
@@ -93,6 +94,7 @@ public class Server {
 
         System.out.println("All players connected, starting game");
 
+        gameManager.initializeGame(playerConnections.values());
     }
 
     public void stop() {
@@ -121,16 +123,14 @@ public class Server {
     }
 
     public void moveCallback(MoveRequestMessage msg, Player player) {
-        gameManager.checkAndMove(msg.pawnID, msg.s, msg.q, msg.r);
+        Position p = new Position(msg.q, msg.r);
+        gameManager.checkAndMove(msg.pawnID, p);
         // validate pawnID
 
         System.out.println("Player " + player.getName() + " moved pawn " + msg.pawnID + " to (" + msg.s + ", " + msg.q + ", " + msg.r + ")");
 
-        // inform the player that the move was successful
-        Message confirmMove = new ResponseMessage("move_request", "success");
-        sendToPlayer(player.getId(), confirmMove);
+        sendToPlayer(player.getId(), new ResponseMessage("move_request", "success"));
 
-        // Send the move to all players
         Message validatedMoveMsg = new MovePlayerMessage(player.getId(), msg.pawnID, msg.s, msg.q, msg.r);
 
         sendToAll(validatedMoveMsg);
