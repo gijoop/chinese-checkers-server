@@ -10,7 +10,7 @@ import java.net.SocketException;
 import java.util.concurrent.locks.ReentrantLock;
 import com.chinese_checkers.comms.Message.FromClient.*;
 import com.chinese_checkers.comms.Message.FromServer.*;
-import com.chinese_checkers.server.Game.Player;
+import com.chinese_checkers.comms.Player;
 import com.chinese_checkers.comms.Message.Message;
 import com.chinese_checkers.comms.CommandParser;
 
