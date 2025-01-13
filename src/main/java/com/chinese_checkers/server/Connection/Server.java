@@ -13,8 +13,8 @@ import com.chinese_checkers.comms.Message.FromServer.ResponseMessage;
 import com.chinese_checkers.server.Game.BaseBoard;
 import com.chinese_checkers.server.Game.BaseMoveValidator;
 import com.chinese_checkers.server.Game.GameManager;
-import com.chinese_checkers.server.Game.Player;
-import com.chinese_checkers.server.Game.Position;
+import com.chinese_checkers.comms.Player;
+import com.chinese_checkers.comms.Position;
 import com.chinese_checkers.comms.Message.Message;
 
 public class Server {
@@ -47,7 +47,7 @@ public class Server {
 
         this.playerCount = playerCount;
         this.port = port;
-        this.gameManager = new GameManager(new BaseBoard(), new BaseMoveValidator(), playerConnections);
+        this.gameManager = new GameManager(new BaseBoard(5), new BaseMoveValidator());
     }
 
     public void start() {

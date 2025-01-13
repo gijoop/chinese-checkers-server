@@ -1,5 +1,8 @@
 package com.chinese_checkers.server.Game;
 
+import com.chinese_checkers.comms.Position;
+import com.chinese_checkers.comms.Pawn;
+
 public interface MoveValidator {
     enum MoveResult {
         SUCCESS,
