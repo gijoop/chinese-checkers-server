@@ -6,13 +6,16 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import com.chinese_checkers.comms.Message.FromClient.MoveRequestMessage;
+import com.chinese_checkers.comms.Message.FromServer.GameStartMessage;
 import com.chinese_checkers.comms.Message.FromServer.MovePlayerMessage;
 import com.chinese_checkers.comms.Message.FromServer.ResponseMessage;
 import com.chinese_checkers.server.Game.BaseBoard;
 import com.chinese_checkers.server.Game.BaseMoveValidator;
 import com.chinese_checkers.server.Game.GameManager;
+import com.chinese_checkers.server.Game.MoveValidator.MoveResult;
 import com.chinese_checkers.comms.Player;
 import com.chinese_checkers.comms.Position;
 import com.chinese_checkers.comms.Message.Message;
@@ -47,7 +50,7 @@ public class Server {
 
         this.playerCount = playerCount;
         this.port = port;
-        this.gameManager = new GameManager(new BaseBoard(5), new BaseMoveValidator());
+        this.gameManager = new GameManager(new BaseBoard(5), new BaseMoveValidator(), 10);
     }
 
     public void start() {
@@ -94,7 +97,12 @@ public class Server {
 
         System.out.println("All players connected, starting game");
 
-        gameManager.initializeGame(playerConnections.values());
+        GameStartMessage msg = gameManager.initializeGame(playerConnections.values()
+                                    .stream()
+                                    .map(PlayerConnection::getPlayer)
+                                    .collect(Collectors.toList()));
+        
+        sendToAll(msg);
     }
 
     public void stop() {
@@ -123,16 +131,18 @@ public class Server {
     }
 
     public void moveCallback(MoveRequestMessage msg, Player player) {
-        Position p = new Position(msg.q, msg.r);
-        gameManager.checkAndMove(msg.pawnID, p);
-        // validate pawnID
+        Position pos = new Position(msg.x, msg.y);
 
-        System.out.println("Player " + player.getName() + " moved pawn " + msg.pawnID + " to (" + msg.s + ", " + msg.q + ", " + msg.r + ")");
+        MoveResult result = gameManager.checkAndMove(msg.pawnID, pos, player);
 
-        sendToPlayer(player.getId(), new ResponseMessage("move_request", "success"));
+        sendToPlayer(player.getId(), new ResponseMessage("move_request", result.toString()));
+        if (result != MoveResult.SUCCESS) {
+            return;
+        }
 
-        Message validatedMoveMsg = new MovePlayerMessage(player.getId(), msg.pawnID, msg.s, msg.q, msg.r);
+        System.out.println("Player " + player.getName() + " moved pawn " + msg.pawnID + " to (" + msg.x + ", " + msg.y + ")");
 
+        Message validatedMoveMsg = new MovePlayerMessage(player.getId(), msg.pawnID, msg.x, msg.y);
         sendToAll(validatedMoveMsg);
     }
 
