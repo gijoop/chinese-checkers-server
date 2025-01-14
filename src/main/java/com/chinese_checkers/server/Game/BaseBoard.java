@@ -2,7 +2,6 @@ package com.chinese_checkers.server.Game;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import com.chinese_checkers.comms.Position;
 import com.chinese_checkers.comms.Pawn;

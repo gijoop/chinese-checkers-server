@@ -9,7 +9,8 @@ public interface MoveValidator {
         INVALID_MOVE,
         OCCUPIED,
         OUT_OF_BOUNDS,
-        NONEXISTENT_PAWN
+        NONEXISTENT_PAWN,
+        NOT_YOUR_TURN
     }
     public MoveResult isValidMove(Board board, Pawn pawn, Position position);
 }

@@ -13,11 +13,11 @@ public class CLI {
         "- set_player_count <2 - 10> \n " +
         "- start\n " +
         "- exit\n");
-        System.out.println("Default port: 58901\nDefault player count: 2");
-
+        
         int playerCount = 2;
         int port = 12345;
         Server server = null;
+        System.out.println("Default port: " + port + "\nDefault player count: " + playerCount);
 
         while (true) {
             System.out.print("> ");
