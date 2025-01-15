@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 import com.chinese_checkers.comms.Pawn;
 import com.chinese_checkers.comms.Player.Corner;
-import com.chinese_checkers.server.Game.Board;
 
 public interface Ruleset {
     enum MoveResult {
