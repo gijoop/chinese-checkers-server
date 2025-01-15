@@ -15,10 +15,6 @@ public interface Board {
     public Position getPositionOf(Pawn pawn);
     public Integer getSize();
     public ArrayList<Pawn> getPlayerPawns(Corner corner);
-    public ArrayList<Position> getStartingPositions(Corner corner);
-    public ArrayList<Position> getValidMoves(Position position);
-    public ArrayList<Position> getValidJumps(Position position);
-    public boolean isValidPosition(Position position);
     public boolean isOccupied(Position position);
     public void printBoard();
 }
