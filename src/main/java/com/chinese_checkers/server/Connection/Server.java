@@ -12,10 +12,10 @@ import com.chinese_checkers.comms.Message.FromClient.MoveRequestMessage;
 import com.chinese_checkers.comms.Message.FromServer.GameStartMessage;
 import com.chinese_checkers.comms.Message.FromServer.MovePlayerMessage;
 import com.chinese_checkers.comms.Message.FromServer.ResponseMessage;
-import com.chinese_checkers.server.Game.BaseBoard;
-import com.chinese_checkers.server.Game.BaseMoveValidator;
+import com.chinese_checkers.server.Game.StandardBoard;
+import com.chinese_checkers.server.Game.StandardRuleset;
 import com.chinese_checkers.server.Game.GameManager;
-import com.chinese_checkers.server.Game.MoveValidator.MoveResult;
+import com.chinese_checkers.server.Game.Ruleset.MoveResult;
 import com.chinese_checkers.comms.Player;
 import com.chinese_checkers.comms.Position;
 import com.chinese_checkers.comms.Message.Message;
@@ -50,7 +50,7 @@ public class Server {
 
         this.playerCount = playerCount;
         this.port = port;
-        this.gameManager = new GameManager(new BaseBoard(5), new BaseMoveValidator(), 10);
+        this.gameManager = new GameManager(new StandardBoard(5), new StandardRuleset(), 10);
     }
 
     public void start() {
@@ -136,14 +136,21 @@ public class Server {
         MoveResult result = gameManager.checkAndMove(msg.pawnID, pos, player);
 
         sendToPlayer(player.getId(), new ResponseMessage("move_request", result.toString()));
+        if(result == MoveResult.GAME_OVER) {
+            sendToAll(new ResponseMessage("game_over", "Game over! Player " + player.getName() + " has won!"));
+            stop();
+            return;
+        }
         if (result != MoveResult.SUCCESS) {
             return;
         }
 
-        System.out.println("Player " + player.getName() + " moved pawn " + msg.pawnID + " to (" + msg.x + ", " + msg.y + ")");
-
         Message validatedMoveMsg = new MovePlayerMessage(player.getId(), msg.pawnID, msg.x, msg.y);
         sendToAll(validatedMoveMsg);
+    }
+
+    public void endTurnCallback(Player player) {
+        gameManager.endTurn(player);
     }
 
 }

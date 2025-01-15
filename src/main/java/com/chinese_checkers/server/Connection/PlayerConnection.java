@@ -37,6 +37,7 @@ public class PlayerConnection implements Runnable {
         commandParser = new CommandParser();
         commandParser.addCommand("move_request", msg -> server.moveCallback((MoveRequestMessage) msg, player));
         commandParser.addCommand("request_join", msg -> joinCallback((RequestJoinMessage) msg));
+        commandParser.addCommand("end_turn", msg -> server.endTurnCallback(player));
     }
 
     public void send(Message message) {
