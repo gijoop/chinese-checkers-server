@@ -13,9 +13,12 @@ import com.chinese_checkers.comms.Message.FromServer.GameStartMessage;
 import com.chinese_checkers.comms.Message.FromServer.MovePlayerMessage;
 import com.chinese_checkers.comms.Message.FromServer.ResponseMessage;
 import com.chinese_checkers.server.Game.StandardBoard;
-import com.chinese_checkers.server.Game.StandardRuleset;
+import com.chinese_checkers.server.Game.Ruleset.PlayerConfig;
+import com.chinese_checkers.server.Game.Ruleset.Ruleset;
+import com.chinese_checkers.server.Game.Ruleset.StandardRuleset;
+import com.chinese_checkers.server.Game.Ruleset.Ruleset.MoveResult;
+import com.chinese_checkers.server.Game.Board;
 import com.chinese_checkers.server.Game.GameManager;
-import com.chinese_checkers.server.Game.Ruleset.MoveResult;
 import com.chinese_checkers.comms.Player;
 import com.chinese_checkers.comms.Position;
 import com.chinese_checkers.comms.Message.Message;
@@ -50,7 +53,14 @@ public class Server {
 
         this.playerCount = playerCount;
         this.port = port;
-        this.gameManager = new GameManager(new StandardBoard(5), new StandardRuleset(), 10);
+        int pawnsPerPlayer = 10;
+        if(playerCount == 2) {
+            pawnsPerPlayer = 15;
+        }
+        Board board = new StandardBoard(5);
+        PlayerConfig playerConfig = new PlayerConfig(playerCount, board.getSize());
+        Ruleset ruleset = new StandardRuleset(playerCount, board, playerConfig);
+        this.gameManager = new GameManager(board, ruleset, pawnsPerPlayer);
     }
 
     public void start() {
