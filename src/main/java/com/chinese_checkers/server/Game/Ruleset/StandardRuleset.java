@@ -4,7 +4,6 @@ import com.chinese_checkers.comms.Position;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -98,11 +97,6 @@ public class StandardRuleset implements Ruleset {
         }
 
         for (Position p : baseTriangle) {
-            if(p == null){
-                System.out.println("p NULL");
-            }else if(offsetPosition == null){
-                System.out.println("offsetPosition NULL");
-            }
             startingPositions.add(p.add(offsetPosition));
         }
 
