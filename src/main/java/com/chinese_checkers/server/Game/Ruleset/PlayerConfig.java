@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.chinese_checkers.comms.Position;
 import com.chinese_checkers.comms.Player.Corner;
+import com.chinese_checkers.server.Game.Board;
 
 public class PlayerConfig {
     private final int playerCount;
@@ -13,14 +14,14 @@ public class PlayerConfig {
     private final Map<Corner, Position> cornerOffsets;
     private final List<Corner> startingCorners;
 
-    public PlayerConfig(int playerCount, int boardSize) {
+    public PlayerConfig(int playerCount, Board board) {
         this.playerCount = playerCount;
-        this.boardSize = boardSize;
+        this.boardSize = board.getSize();
         this.cornerOffsets = initializeOffsets();
         this.startingCorners = initializeCorners();
     }
 
-    public boolean isStartingCornerReverse(Corner corner) {
+    public static boolean isStartingCornerReverse(Corner corner) {
         return corner == Corner.LOWER || corner == Corner.UPPER_LEFT || corner == Corner.UPPER_RIGHT;
     }
 
@@ -58,6 +59,14 @@ public class PlayerConfig {
         } else {
             return new ArrayList<>();
         }
+    }
+    
+    public int getPlayerCount() {
+        return playerCount;
+    }
+
+    public int getBoardSize() {
+        return boardSize;
     }
 
     public Position getOffset(Corner corner) {

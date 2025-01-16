@@ -8,6 +8,7 @@ import java.util.Set;
 
 import com.chinese_checkers.comms.Player;
 import com.chinese_checkers.comms.Player.Corner;
+import com.chinese_checkers.server.Move;
 import com.chinese_checkers.server.Game.Ruleset.PlayerConfig;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset.MoveResult;
@@ -34,7 +35,7 @@ public class GameManager {
     }
 
     public GameStartMessage initializeGame(Collection<Player> players) {
-        playerConfig = new PlayerConfig(players.size(), board.getSize());
+        playerConfig = new PlayerConfig(players.size(), board);
         int playerCount = players.size();
         ArrayList<Corner> startingCorners = playerConfig.getStartingCorners();
         GameStartMessage gameStartMessage = new GameStartMessage(playerCount);
@@ -71,15 +72,16 @@ public class GameManager {
             return MoveResult.INVALID_PAWN;
         }
 
+        Move move = new Move(pawn, p);
         MoveResult result = ruleset.validateMove(pawn, p);
 
         if(result == MoveResult.SUCCESS && !hasJumped) {
             System.out.println("Player " + player.getName() + " moved pawn " + pawnId + " to (" + p.getX() + ", " + p.getY() + ")");
-            board.movePawn(pawn, p);
+            board.movePawn(move);
         }
         else if(result == MoveResult.SUCCESS_JUMP) {
             System.out.println("Player " + player.getName() + " jumped pawn " + pawnId + " to (" + p.getX() + ", " + p.getY() + ")");
-            board.movePawn(pawn, p);
+            board.movePawn(move);
             hasJumped = true;
             return result;
         }

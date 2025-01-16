@@ -9,7 +9,13 @@ import java.util.stream.Collectors;
 
 import com.chinese_checkers.comms.Pawn;
 import com.chinese_checkers.comms.Player.Corner;
+import com.chinese_checkers.server.Move;
 import com.chinese_checkers.server.Game.Board;
+import com.chinese_checkers.server.Game.MoveValidator.BoundsValidator;
+import com.chinese_checkers.server.Game.MoveValidator.MoveOutsideGoalValidator;
+import com.chinese_checkers.server.Game.MoveValidator.MoveValidator;
+import com.chinese_checkers.server.Game.MoveValidator.OccupiedValidator;
+import com.chinese_checkers.server.Game.MoveValidator.ReachablePositionValidator;
 
 
 public class StandardRuleset implements Ruleset {
@@ -23,40 +29,27 @@ public class StandardRuleset implements Ruleset {
     private Set<Position> validPositions;
     private int playerCount;
 
-    public StandardRuleset(int playerCount, Board board, PlayerConfig playerConfig) {
-        this.playerCount = playerCount;
+    public StandardRuleset(Board board, PlayerConfig playerConfig) {
         this.board = board;
         this.playerConfig = playerConfig;
-        this.validPositions = getValidPositions();
+        this.playerCount = playerConfig.getPlayerCount();
+        this.validPositions = getInBoundPositions();
     }
 
     public MoveResult validateMove(Pawn pawn, Position position) {
-        if(!isInBounds(position)){
-            return MoveResult.OUT_OF_BOUNDS;
-        }
+        Move move = new Move(pawn, position);
+        MoveValidator validator = 
+            new BoundsValidator(
+            new OccupiedValidator(
+            new MoveOutsideGoalValidator(
+            new ReachablePositionValidator(null, board, this), board, this), board), this);
 
-        if(board.isOccupied(position)) {
-            return MoveResult.OCCUPIED;
-        }
+        validator.validateMove(move);
 
-        ArrayList<Position> goalPositions = getStartingPositions(pawn.getOwner().getCorner().getOpposite());
-        if(goalPositions.contains(board.getPositionOf(pawn))){
-            if(!goalPositions.contains(position)){
-                // Player is trying to move out of their goal
-                return MoveResult.INVALID_MOVE;
-            }
-        }
-        if(!getValidMoves(board.getPositionOf(pawn)).contains(position)){
-            if(!getValidJumps(board.getPositionOf(pawn)).contains(position)){
-                return MoveResult.INVALID_MOVE;
-            }
-            return MoveResult.SUCCESS_JUMP;
-        }
-
-        return MoveResult.SUCCESS;
+        return move.getResult();
     }
 
-    private Set<Position> getValidPositions() {
+    private Set<Position> getInBoundPositions() {
         Set<Position> validPositions = new HashSet<>();
         int size = board.getSize();
         Position offset = new Position(-2*(size-1), -(size-1));
@@ -92,7 +85,7 @@ public class StandardRuleset implements Ruleset {
         }
 
         Position offsetPosition = playerConfig.getOffset(corner);
-        if(playerConfig.isStartingCornerReverse(corner)){
+        if(PlayerConfig.isStartingCornerReverse(corner)){
             baseTriangle = invertTriangle(baseTriangle, triSize);
         }
 
@@ -113,30 +106,26 @@ public class StandardRuleset implements Ruleset {
         return validPositions.contains(position);
     }
 
-    public ArrayList<Position> getValidMoves(Position position) {
+    public ArrayList<Position> getReachableMoves(Position position) {
         ArrayList<Position> validMoves = new ArrayList<>();
         int x = position.getX();
         int y = position.getY();
 
         for (Position dir : DIRECTIONS) {
             Position move = new Position(x + dir.getX(), y + dir.getY());
-            if (isInBounds(move) && !board.isOccupied(move)) {
-                validMoves.add(move);
-            }
+            validMoves.add(move);
         }
         return validMoves;
     }
 
-    public ArrayList<Position> getValidJumps(Position position) {
+    public ArrayList<Position> getReachableJumps(Position position) {
         ArrayList<Position> jumps = new ArrayList<>();
         int x = position.getX();
         int y = position.getY();
         for (Position dir : DIRECTIONS) {
             if(board.isOccupied(position.add(dir))){
                 Position jump = new Position(x + 2*dir.getX(), y + 2*dir.getY());
-                if (isInBounds(jump) && !board.isOccupied(jump)) {
-                    jumps.add(jump);
-                }
+                jumps.add(jump);
             }
         }
         return jumps;

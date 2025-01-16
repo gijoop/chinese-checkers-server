@@ -2,10 +2,12 @@ package com.chinese_checkers.server.Game;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.chinese_checkers.comms.Position;
 import com.chinese_checkers.comms.Pawn;
 import com.chinese_checkers.comms.Player.Corner;
+import com.chinese_checkers.server.Move;
 
 public class StandardBoard implements Board {
     private HashMap<Pawn, Position> pawnToPos;
@@ -23,11 +25,11 @@ public class StandardBoard implements Board {
         posToPawn.put(position, pawn);
     }
 
-    public void movePawn(Pawn pawn, Position goal) {
-        Position start = pawnToPos.get(pawn);
-        pawnToPos.put(pawn, goal);
+    public void movePawn(Move move) {
+        Position start = pawnToPos.get(move.getPawn());
+        pawnToPos.put(move.getPawn(), move.getGoal());
         posToPawn.remove(start);
-        posToPawn.put(goal, pawn);
+        posToPawn.put(move.getGoal(), move.getPawn());
     }
 
     public Pawn getPawnAt(Position position) {
@@ -66,8 +68,10 @@ public class StandardBoard implements Board {
     }
 
     public void printBoard() {
-        for (Pawn p : pawnToPos.keySet()) {
-            System.out.println(p + " " + pawnToPos.get(p));
+    System.out.println("Pawn Positions:");
+        for (Map.Entry<Pawn, Position> entry : pawnToPos.entrySet()) {
+            System.out.println(entry.getKey() + " : " + entry.getValue());
         }
     }
+    
 }
