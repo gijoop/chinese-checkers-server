@@ -58,8 +58,8 @@ public class Server {
             pawnsPerPlayer = 15;
         }
         Board board = new StandardBoard(5);
-        PlayerConfig playerConfig = new PlayerConfig(playerCount, board.getSize());
-        Ruleset ruleset = new StandardRuleset(playerCount, board, playerConfig);
+        PlayerConfig playerConfig = new PlayerConfig(playerCount, board);
+        Ruleset ruleset = new StandardRuleset(board, playerConfig);
         this.gameManager = new GameManager(board, ruleset, pawnsPerPlayer);
     }
 

@@ -109,14 +109,12 @@ public class PlayerConnection implements Runnable {
 
     private void joinCallback(RequestJoinMessage msg) {
         if (waitingToJoin) {
-            // Validate message
-
             connected = true;
             player = new Player(msg.getName(), playerID);
             System.out.println("Player " + msg.getName() + " connected");
 
-            // send ACK to player
             send(new SelfDataMessage(playerID));
+            
         }
         else {
             send(new ResponseMessage("request_join", "join request denied"));
