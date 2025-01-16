@@ -7,7 +7,6 @@ import java.util.Map;
 import com.chinese_checkers.comms.Position;
 import com.chinese_checkers.comms.Pawn;
 import com.chinese_checkers.comms.Player.Corner;
-import com.chinese_checkers.server.Move;
 
 public class StandardBoard implements Board {
     private HashMap<Pawn, Position> pawnToPos;
@@ -25,11 +24,11 @@ public class StandardBoard implements Board {
         posToPawn.put(position, pawn);
     }
 
-    public void movePawn(Move move) {
-        Position start = pawnToPos.get(move.getPawn());
-        pawnToPos.put(move.getPawn(), move.getGoal());
+    public void movePawn(Pawn pawn, Position pos) {
+        Position start = pawnToPos.get(pawn);
+        pawnToPos.put(pawn, pos);
         posToPawn.remove(start);
-        posToPawn.put(move.getGoal(), move.getPawn());
+        posToPawn.put(pos, pawn);
     }
 
     public Pawn getPawnAt(Position position) {

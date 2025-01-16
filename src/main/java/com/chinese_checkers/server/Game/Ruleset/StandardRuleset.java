@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 
 import com.chinese_checkers.comms.Pawn;
 import com.chinese_checkers.comms.Player.Corner;
-import com.chinese_checkers.server.Move;
 import com.chinese_checkers.server.Game.Board;
+import com.chinese_checkers.server.Game.Move;
 import com.chinese_checkers.server.Game.MoveValidator.BoundsValidator;
 import com.chinese_checkers.server.Game.MoveValidator.MoveOutsideGoalValidator;
 import com.chinese_checkers.server.Game.MoveValidator.MoveValidator;
@@ -37,12 +37,13 @@ public class StandardRuleset implements Ruleset {
     }
 
     public MoveResult validateMove(Pawn pawn, Position position) {
-        Move move = new Move(pawn, position);
+        Move move = new Move(board.getPositionOf(pawn), position);
+        Corner playerCorner = pawn.getOwner().getCorner();
         MoveValidator validator = 
             new BoundsValidator(
             new OccupiedValidator(
             new MoveOutsideGoalValidator(
-            new ReachablePositionValidator(null, board, this), board, this), board), this);
+            new ReachablePositionValidator(null, this), playerCorner, this), board), this);
 
         validator.validateMove(move);
 

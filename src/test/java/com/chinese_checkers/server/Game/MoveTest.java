@@ -1,4 +1,4 @@
-package com.chinese_checkers.server;
+package com.chinese_checkers.server.Game;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -6,20 +6,19 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.chinese_checkers.comms.Pawn;
 import com.chinese_checkers.comms.Position;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset.MoveResult;
 
 public class MoveTest {
-    private Pawn pawn;
-    private Position goal;
     private Move move;
+    private Position start;
+    private Position goal;
 
     @BeforeEach
     public void setUp() {
-        pawn = new Pawn(null);
+        start = new Position(0, 0);
         goal = new Position(1, 1);
-        move = new Move(pawn, goal);
+        move = new Move(start, goal);
     }
 
     @Test
