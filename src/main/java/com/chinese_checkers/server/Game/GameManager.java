@@ -35,9 +35,8 @@ public class GameManager {
 
     public GameStartMessage initializeGame(Collection<Player> players) {
         playerConfig = new PlayerConfig(players.size(), board);
-        int playerCount = players.size();
         ArrayList<Corner> startingCorners = playerConfig.getStartingCorners();
-        GameStartMessage gameStartMessage = new GameStartMessage(playerCount);
+        GameStartMessage gameStartMessage = new GameStartMessage(board.getSize());
         
         for(Player player : players) {
             Corner corner = startingCorners.remove(0);
@@ -48,6 +47,7 @@ public class GameManager {
             for(int i = 0; i < pawnsPerPlayer; i++) {
                 Pawn pawn = new Pawn(player);
                 board.addPawn(pawn, startingPositions.get(i));
+                gameStartMessage.addPawn(startingPositions.get(i), pawn);
             }
         }
 
