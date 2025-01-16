@@ -158,7 +158,8 @@ public class Server {
             stop();
             return;
         }
-        if (result != MoveResult.SUCCESS) {
+        if (result != MoveResult.SUCCESS || result == MoveResult.SUCCESS_JUMP) {
+            sendToPlayer(player.getId(), new ResponseMessage("move_request", "Invalid move: " + result.toString()));
             return;
         }
 
