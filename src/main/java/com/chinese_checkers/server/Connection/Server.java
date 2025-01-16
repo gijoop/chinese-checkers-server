@@ -149,6 +149,7 @@ public class Server {
     public void moveCallback(MoveRequestMessage msg, Player player) {
         Position pos = new Position(msg.x, msg.y);
 
+        Corner startTurn = gameManager.getCurrentTurn();
         MoveResult result = gameManager.checkAndMove(msg.pawnID, pos, player);
 
         sendToPlayer(player.getId(), new ResponseMessage("move_request", result.toString()));
@@ -163,10 +164,15 @@ public class Server {
 
         Message validatedMoveMsg = new MovePlayerMessage(player.getId(), msg.pawnID, msg.x, msg.y);
         sendToAll(validatedMoveMsg);
+
+        if (gameManager.getCurrentTurn() != startTurn) {
+            sendToAll(new NextRoundMessage(getPlayerOfTurn(gameManager.getCurrentTurn())));
+        }
     }
 
     public void endTurnCallback(Player player) {
         gameManager.endTurn(player);
+        sendToAll(new NextRoundMessage(getPlayerOfTurn(gameManager.getCurrentTurn())));
     }
 
     private int getPlayerOfTurn(Corner turn) {
