@@ -15,7 +15,7 @@ import com.chinese_checkers.comms.Message.FromServer.NextRoundMessage;
 import com.chinese_checkers.comms.Message.FromServer.ResponseMessage;
 import com.chinese_checkers.comms.Player.Corner;
 import com.chinese_checkers.server.Game.StandardBoard;
-import com.chinese_checkers.server.Game.Ruleset.PlayerConfig;
+import com.chinese_checkers.server.Game.Ruleset.CornerHelper;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset;
 import com.chinese_checkers.server.Game.Ruleset.StandardRuleset;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset.MoveResult;
@@ -60,8 +60,8 @@ public class Server {
             pawnsPerPlayer = 15;
         }
         Board board = new StandardBoard(5);
-        PlayerConfig playerConfig = new PlayerConfig(playerCount, board);
-        Ruleset ruleset = new StandardRuleset(board, playerConfig);
+        CornerHelper cornerHelper = new CornerHelper(playerCount, board);
+        Ruleset ruleset = new StandardRuleset(board, cornerHelper);
         this.gameManager = new GameManager(board, ruleset, pawnsPerPlayer);
     }
 

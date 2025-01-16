@@ -24,15 +24,15 @@ public class StandardRuleset implements Ruleset {
         new Position(0, -1), new Position(-1, -1), new Position(1, 1)
     };
 
-    private PlayerConfig playerConfig;
+    private CornerHelper cornerHelper;
     private Board board;
     private Set<Position> validPositions;
     private int playerCount;
 
-    public StandardRuleset(Board board, PlayerConfig playerConfig) {
+    public StandardRuleset(Board board, CornerHelper cornerHelper) {
         this.board = board;
-        this.playerConfig = playerConfig;
-        this.playerCount = playerConfig.getPlayerCount();
+        this.cornerHelper = cornerHelper;
+        this.playerCount = cornerHelper.getPlayerCount();
         this.validPositions = getInBoundPositions();
     }
 
@@ -85,8 +85,8 @@ public class StandardRuleset implements Ruleset {
             }
         }
 
-        Position offsetPosition = playerConfig.getOffset(corner);
-        if(PlayerConfig.isStartingCornerReverse(corner)){
+        Position offsetPosition = cornerHelper.getOffset(corner);
+        if(CornerHelper.isStartingCornerReverse(corner)){
             baseTriangle = invertTriangle(baseTriangle, triSize);
         }
 

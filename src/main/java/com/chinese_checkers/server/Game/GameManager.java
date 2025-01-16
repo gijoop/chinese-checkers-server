@@ -8,7 +8,7 @@ import java.util.Set;
 
 import com.chinese_checkers.comms.Player;
 import com.chinese_checkers.comms.Player.Corner;
-import com.chinese_checkers.server.Game.Ruleset.PlayerConfig;
+import com.chinese_checkers.server.Game.Ruleset.CornerHelper;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset.MoveResult;
 import com.chinese_checkers.comms.Position;
@@ -22,7 +22,7 @@ public class GameManager {
     private Optional<Corner> currentTurn;
     private ArrayList<Corner> takenCorners;
     private boolean hasJumped;
-    private PlayerConfig playerConfig;
+    private CornerHelper cornerHelper;
 
     public GameManager(Board board, Ruleset ruleset, int pawnsPerPlayer) {
         this.board = board;
@@ -34,8 +34,8 @@ public class GameManager {
     }
 
     public GameStartMessage initializeGame(Collection<Player> players) {
-        playerConfig = new PlayerConfig(players.size(), board);
-        ArrayList<Corner> startingCorners = playerConfig.getStartingCorners();
+        cornerHelper = new CornerHelper(players.size(), board);
+        ArrayList<Corner> startingCorners = cornerHelper.getStartingCorners();
         GameStartMessage gameStartMessage = new GameStartMessage(board.getSize());
         
         for(Player player : players) {

@@ -18,8 +18,8 @@ public class StandardRulesetTest {
     @Test
     public void testGetStartingPositionsSize5() {
         StandardBoard board = new StandardBoard(5);
-        PlayerConfig playerConfig = new PlayerConfig(3, board);
-        Ruleset ruleset = new StandardRuleset(board, playerConfig);
+        CornerHelper cornerHelper = new CornerHelper(3, board);
+        Ruleset ruleset = new StandardRuleset(board, cornerHelper);
 
         ArrayList<Position> startingPositions = ruleset.getStartingPositions(Corner.UPPER);
         assertEquals(10, startingPositions.size());
@@ -77,8 +77,8 @@ public class StandardRulesetTest {
     @Test
     public void testGetStartingPositionsSize4() {
         StandardBoard board = new StandardBoard(4);
-        PlayerConfig playerConfig = new PlayerConfig(3, board);
-        Ruleset ruleset = new StandardRuleset(board, playerConfig);
+        CornerHelper cornerHelper = new CornerHelper(3, board);
+        Ruleset ruleset = new StandardRuleset(board, cornerHelper);
 
         ArrayList<Position> startingPositions = ruleset.getStartingPositions(Corner.UPPER);
         assertEquals(6, startingPositions.size());
@@ -124,8 +124,8 @@ public class StandardRulesetTest {
     @Test
     public void testIsInBounds() {
         StandardBoard board = new StandardBoard(5);
-        PlayerConfig playerConfig = new PlayerConfig(3, board);
-        Ruleset ruleset = new StandardRuleset(board, playerConfig);
+        CornerHelper cornerHelper = new CornerHelper(3, board);
+        Ruleset ruleset = new StandardRuleset(board, cornerHelper);
 
         assertTrue(ruleset.isInBounds(new Position(0, 0)));
         assertTrue(ruleset.isInBounds(new Position(4, 4)));
@@ -144,8 +144,8 @@ public class StandardRulesetTest {
     @Test
     public void testGetReachableMoves() {
         StandardBoard board = new StandardBoard(5);
-        PlayerConfig playerConfig = new PlayerConfig(3, board);
-        Ruleset ruleset = new StandardRuleset(board, playerConfig);
+        CornerHelper cornerHelper = new CornerHelper(3, board);
+        Ruleset ruleset = new StandardRuleset(board, cornerHelper);
         //Player player = new Player("Player1", 1000);
         Pawn pawn = new Pawn(null);
 
@@ -164,8 +164,8 @@ public class StandardRulesetTest {
     @Test
     public void testGetReachableJumps() {
         StandardBoard board = new StandardBoard(5);
-        PlayerConfig playerConfig = new PlayerConfig(3, board);
-        Ruleset ruleset = new StandardRuleset(board, playerConfig);
+        CornerHelper cornerHelper = new CornerHelper(3, board);
+        Ruleset ruleset = new StandardRuleset(board, cornerHelper);
         Pawn pawnA = new Pawn(null);
         Pawn pawnB = new Pawn(null);
         Pawn pawnC = new Pawn(null);
