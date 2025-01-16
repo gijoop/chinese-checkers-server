@@ -52,9 +52,7 @@ public class GameManager {
         }
 
 
-        //currentTurn = Optional.of(players.stream().skip((int)(players.size() * Math.random())).findFirst().get().getColor());
-        currentTurn = Optional.of(Corner.UPPER);
-        System.out.println("Starting turn for player " + currentTurn);
+        currentTurn = Optional.of(players.stream().skip((int)(players.size() * Math.random())).findFirst().get().getCorner());
         return gameStartMessage;
     }
 
@@ -111,6 +109,10 @@ public class GameManager {
         return board.getPlayerPawns(player.getCorner()).stream()
                     .map(board::getPositionOf)
                     .allMatch(winningPositions::contains);
+    }
+
+    public Corner getCurrentTurn() {
+        return currentTurn.orElse(null);
     }
 
     public void endTurn(Player player) {

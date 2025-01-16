@@ -11,7 +11,9 @@ import java.util.stream.Collectors;
 import com.chinese_checkers.comms.Message.FromClient.MoveRequestMessage;
 import com.chinese_checkers.comms.Message.FromServer.GameStartMessage;
 import com.chinese_checkers.comms.Message.FromServer.MovePlayerMessage;
+import com.chinese_checkers.comms.Message.FromServer.NextRoundMessage;
 import com.chinese_checkers.comms.Message.FromServer.ResponseMessage;
+import com.chinese_checkers.comms.Player.Corner;
 import com.chinese_checkers.server.Game.StandardBoard;
 import com.chinese_checkers.server.Game.Ruleset.PlayerConfig;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset;
@@ -113,6 +115,10 @@ public class Server {
                                     .collect(Collectors.toList()));
         
         sendToAll(msg);
+
+        NextRoundMessage nextRoundMsg = new NextRoundMessage(getPlayerOfTurn(gameManager.getCurrentTurn()));
+
+        sendToAll(nextRoundMsg);
     }
 
     public void stop() {
@@ -163,5 +169,12 @@ public class Server {
         gameManager.endTurn(player);
     }
 
+    private int getPlayerOfTurn(Corner turn) {
+        return playerConnections.values().stream()
+                .filter(connection -> connection.getPlayer().getCorner() == turn)
+                .map(connection -> connection.getPlayer().getId())
+                .findFirst()
+                .orElse(-1);
+    }
 }
 
