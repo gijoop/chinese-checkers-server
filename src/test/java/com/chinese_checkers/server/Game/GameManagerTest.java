@@ -15,12 +15,12 @@ import com.chinese_checkers.comms.Position;
 import com.chinese_checkers.comms.Message.FromServer.GameStartMessage;
 import com.chinese_checkers.comms.Player.Corner;
 import com.chinese_checkers.comms.Pawn;
-import com.chinese_checkers.server.Game.Ruleset.PlayerConfig;
+import com.chinese_checkers.server.Game.Ruleset.CornerHelper;
 import com.chinese_checkers.server.Game.Ruleset.StandardRuleset;
 
 public class GameManagerTest {
     private GameManager gameManager;
-    private PlayerConfig playerConfig;
+    private CornerHelper cornerHelper;
     private StandardBoard board;
     private StandardRuleset ruleset;
     private Player playerA;
@@ -30,8 +30,8 @@ public class GameManagerTest {
     @BeforeEach
     public void setUp() {
         board = new StandardBoard(5);
-        playerConfig = new PlayerConfig(3, board);
-        ruleset = new StandardRuleset(board, playerConfig);
+        cornerHelper = new CornerHelper(3, board);
+        ruleset = new StandardRuleset(board, cornerHelper);
         gameManager = new GameManager(board, ruleset, 10);
         playerA = new Player("PlayerA", 1001);
         playerB = new Player("PlayerB", 1002);

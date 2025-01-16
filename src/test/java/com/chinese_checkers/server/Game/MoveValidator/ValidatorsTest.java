@@ -10,7 +10,7 @@ import com.chinese_checkers.comms.Position;
 import com.chinese_checkers.comms.Player.Corner;
 import com.chinese_checkers.server.Game.Move;
 import com.chinese_checkers.server.Game.StandardBoard;
-import com.chinese_checkers.server.Game.Ruleset.PlayerConfig;
+import com.chinese_checkers.server.Game.Ruleset.CornerHelper;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset;
 import com.chinese_checkers.server.Game.Ruleset.StandardRuleset;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset.MoveResult;
@@ -19,15 +19,15 @@ public class ValidatorsTest {
     private MoveValidator validator;
     private StandardBoard board;
     private Ruleset ruleset;
-    private PlayerConfig playerConfig;
+    private CornerHelper cornerHelper;
     private Pawn pawnA;
     private Pawn pawnB;
 
     @BeforeEach
     public void setUp() {
         board = new StandardBoard(5);
-        playerConfig = new PlayerConfig(2, board);
-        ruleset = new StandardRuleset(board, playerConfig);
+        cornerHelper = new CornerHelper(2, board);
+        ruleset = new StandardRuleset(board, cornerHelper);
 
         pawnA = new Pawn(null);
         pawnB = new Pawn(null);
