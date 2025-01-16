@@ -2,35 +2,34 @@ package com.chinese_checkers.server.Game.MoveValidator;
 
 import java.util.ArrayList;
 
-import com.chinese_checkers.comms.Pawn;
 import com.chinese_checkers.comms.Position;
-import com.chinese_checkers.server.Move;
-import com.chinese_checkers.server.Game.Board;
+import com.chinese_checkers.comms.Player.Corner;
+import com.chinese_checkers.server.Game.Move;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset.MoveResult;
 
 public class MoveOutsideGoalValidator extends MoveValidatorDecorator {
-    private Board board;
+    private Corner corner;
     private Ruleset ruleset;
 
-    public MoveOutsideGoalValidator(MoveValidator nextValidator, Board board, Ruleset ruleset) {
+    public MoveOutsideGoalValidator(MoveValidator nextValidator, Corner corner, Ruleset ruleset) {
         super(nextValidator);
-        this.board = board;
+        this.corner = corner;
         this.ruleset = ruleset;
     }
     
     @Override
     public void validateMove(Move move) {
-        validateOutsideGoal(move);
+        validateOutsideGoal(move, corner);
         super.validateMove(move);
     }
 
-    private void validateOutsideGoal(Move move) {
-        Pawn pawn = move.getPawn();
-        Position position = move.getGoal();
-        ArrayList<Position> goalPositions = ruleset.getStartingPositions(pawn.getOwner().getCorner().getOpposite());
-        if(goalPositions.contains(board.getPositionOf(pawn))){
-            if(!goalPositions.contains(position)){
+    private void validateOutsideGoal(Move move, Corner corner) {
+        Position start = move.getStart();
+        Position goal = move.getGoal();
+        ArrayList<Position> goalPositions = ruleset.getStartingPositions(corner.getOpposite());
+        if(goalPositions.contains(start)){
+            if(!goalPositions.contains(goal)){
                 move.setResult(MoveResult.OUT_OF_GOAL);
             }
         }

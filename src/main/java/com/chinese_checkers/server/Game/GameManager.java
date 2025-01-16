@@ -8,7 +8,6 @@ import java.util.Set;
 
 import com.chinese_checkers.comms.Player;
 import com.chinese_checkers.comms.Player.Corner;
-import com.chinese_checkers.server.Move;
 import com.chinese_checkers.server.Game.Ruleset.PlayerConfig;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset.MoveResult;
@@ -72,16 +71,15 @@ public class GameManager {
             return MoveResult.INVALID_PAWN;
         }
 
-        Move move = new Move(pawn, p);
         MoveResult result = ruleset.validateMove(pawn, p);
 
         if(result == MoveResult.SUCCESS && !hasJumped) {
             System.out.println("Player " + player.getName() + " moved pawn " + pawnId + " to (" + p.getX() + ", " + p.getY() + ")");
-            board.movePawn(move);
+            board.movePawn(pawn, p);
         }
         else if(result == MoveResult.SUCCESS_JUMP) {
             System.out.println("Player " + player.getName() + " jumped pawn " + pawnId + " to (" + p.getX() + ", " + p.getY() + ")");
-            board.movePawn(move);
+            board.movePawn(pawn, p);
             hasJumped = true;
             return result;
         }

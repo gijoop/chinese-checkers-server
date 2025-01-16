@@ -1,6 +1,6 @@
 package com.chinese_checkers.server.Game.MoveValidator;
 
-import com.chinese_checkers.server.Move;
+import com.chinese_checkers.server.Game.Move;
 
 public abstract class MoveValidatorDecorator implements MoveValidator {
     protected MoveValidator nextValidator;

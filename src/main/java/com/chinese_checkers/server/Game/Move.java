@@ -1,16 +1,15 @@
-package com.chinese_checkers.server;
+package com.chinese_checkers.server.Game;
 
-import com.chinese_checkers.comms.Pawn;
 import com.chinese_checkers.comms.Position;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset.MoveResult;
 
 public class Move {
-    private Pawn pawn;
+    private Position start;
     private Position goal;
     private MoveResult result;
 
-    public Move(Pawn pawn, Position goal) {
-        this.pawn = pawn;
+    public Move(Position start, Position goal) {
+        this.start = start;
         this.goal = goal;
         result = MoveResult.SUCCESS;
     }
@@ -23,8 +22,8 @@ public class Move {
         this.result = result;
     }
 
-    public Pawn getPawn() {
-        return pawn;
+    public Position getStart() {
+        return start;
     }
 
     public Position getGoal() {
@@ -38,7 +37,7 @@ public class Move {
     @Override
     public String toString() {
         return "Move{" +
-                "pawn=" + pawn +
+                "start=" + start +
                 ", goal=" + goal +
                 '}';
     }
