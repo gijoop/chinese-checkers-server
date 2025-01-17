@@ -8,11 +8,20 @@ import com.chinese_checkers.comms.Position;
 import com.chinese_checkers.comms.Pawn;
 import com.chinese_checkers.comms.Player.Corner;
 
+/**
+ * The StandardBoard class implements the Board interface and provides the standard implementation
+ * for interacting with the game board in Chinese Checkers.
+ */
 public class StandardBoard implements Board {
     private HashMap<Pawn, Position> pawnToPos;
     private HashMap<Position, Pawn> posToPawn;
     private Integer size;
 
+    /**
+     * Constructs a StandardBoard object with the specified size.
+     *
+     * @param size the size of the board
+     */
     public StandardBoard(Integer size) {
         this.pawnToPos = new HashMap<>();
         this.posToPawn = new HashMap<>();
@@ -67,10 +76,9 @@ public class StandardBoard implements Board {
     }
 
     public void printBoard() {
-    System.out.println("Pawn Positions:");
+        System.out.println("Pawn Positions:");
         for (Map.Entry<Pawn, Position> entry : pawnToPos.entrySet()) {
             System.out.println(entry.getKey() + " : " + entry.getValue());
         }
     }
-    
 }

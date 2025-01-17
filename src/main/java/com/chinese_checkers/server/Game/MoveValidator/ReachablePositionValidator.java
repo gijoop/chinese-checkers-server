@@ -19,6 +19,13 @@ public class ReachablePositionValidator extends MoveValidatorDecorator {
         super.validateMove(move);
     }
 
+    /**
+     * Validates if the goal position of a move is reachable from the start position.
+     * If the goal position is not reachable by a direct move or a jump, the move result is set to UNREACHABLE.
+     * If the goal position is reachable by a jump, the move result is set to SUCCESS_JUMP.
+     *
+     * @param move the move to be validated, containing the start and goal positions
+     */
     private void validateReachable(Move move) {
         Position start = move.getStart();
         Position goal = move.getGoal();

@@ -18,6 +18,12 @@ public class BoundsValidator extends MoveValidatorDecorator {
         super.validateMove(move);
     }
 
+    /**
+     * Validates if the goal position of the given move is within the allowed bounds.
+     * If the goal position is out of bounds, sets the move result to OUT_OF_BOUNDS.
+     *
+     * @param move the move to be validated
+     */
     private void validateBounds(Move move) {
         if(!ruleset.isInBounds(move.getGoal())){
             move.setResult(MoveResult.OUT_OF_BOUNDS);

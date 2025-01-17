@@ -9,8 +9,14 @@ public abstract class MoveValidatorDecorator implements MoveValidator {
         this.nextValidator = nextValidator;
     }
 
+    /**
+     * Validates the given move. If there is a next validator in the chain,
+     * it delegates the validation to the next validator.
+     *
+     * @param move the move to be validated
+     */
     public void validateMove(Move move) {
-        if(nextValidator == null) {
+        if (nextValidator == null) {
             return;
         }
         nextValidator.validateMove(move);

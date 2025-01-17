@@ -24,6 +24,16 @@ public class MoveOutsideGoalValidator extends MoveValidatorDecorator {
         super.validateMove(move);
     }
 
+    /**
+     * Validates if a move is outside the goal area.
+     * 
+     * This method checks if the starting position of the move is within the goal positions
+     * of the opposite corner. If the starting position is within the goal positions and the 
+     * goal position is outside the goal positions, the move result is set to OUT_OF_GOAL.
+     * 
+     * @param move   The move to be validated.
+     * @param corner The starting corner of pawn that is making the move.
+     */
     private void validateOutsideGoal(Move move, Corner corner) {
         Position start = move.getStart();
         Position goal = move.getGoal();

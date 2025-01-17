@@ -15,6 +15,10 @@ import com.chinese_checkers.comms.Position;
 import com.chinese_checkers.comms.Pawn;
 import com.chinese_checkers.comms.Message.FromServer.GameStartMessage;
 
+/**
+ * The GameManager class manages the state and logic of a game of Chinese Checkers.
+ * It handles initializing the game, validating and executing moves, and determining the winner.
+ */
 public class GameManager {
     private Board board;
     private Ruleset ruleset;
@@ -24,6 +28,13 @@ public class GameManager {
     private boolean hasJumped;
     private CornerHelper cornerHelper;
 
+    /**
+     * Constructs a GameManager object with the specified board, ruleset, and number of pawns per player.
+     *
+     * @param board the game board
+     * @param ruleset the ruleset to use for the game
+     * @param pawnsPerPlayer the number of pawns each player has
+     */
     public GameManager(Board board, Ruleset ruleset, int pawnsPerPlayer) {
         this.board = board;
         this.ruleset = ruleset;
@@ -33,6 +44,12 @@ public class GameManager {
         this.hasJumped = false;
     }
 
+    /**
+     * Initializes the game with the specified players.
+     *
+     * @param players the players participating in the game
+     * @return a GameStartMessage containing the initial state of the game
+     */
     public GameStartMessage initializeGame(Collection<Player> players) {
         cornerHelper = new CornerHelper(players.size(), board);
         ArrayList<Corner> startingCorners = cornerHelper.getStartingCorners();
@@ -51,11 +68,18 @@ public class GameManager {
             }
         }
 
-
         currentTurn = Optional.of(players.stream().skip((int)(players.size() * Math.random())).findFirst().get().getCorner());
         return gameStartMessage;
     }
 
+    /**
+     * Checks and executes a move for the specified pawn to the given position.
+     *
+     * @param pawnId the ID of the pawn to move
+     * @param p the position to move the pawn to
+     * @param player the player making the move
+     * @return the result of the move
+     */
     public MoveResult checkAndMove(Integer pawnId, Position p, Player player) {
         if(!isPlayerTurn(player)) {
             System.out.println("Player " + player.getName() + " tried to move when it's not their turn");
@@ -95,14 +119,33 @@ public class GameManager {
         return result;
     }
 
+    /**
+     * Checks if it is the specified player's turn.
+     *
+     * @param player the player to check
+     * @return true if it is the player's turn, false otherwise
+     */
     private boolean isPlayerTurn(Player player) {
         return player.getCorner().equals(currentTurn.orElse(null));
     }
     
+    /**
+     * Checks if the specified pawn belongs to the given player.
+     *
+     * @param pawn the pawn to check
+     * @param player the player to check
+     * @return true if the pawn belongs to the player, false otherwise
+     */
     private boolean isValidPawn(Pawn pawn, Player player) {
         return pawn != null && pawn.getOwner().equals(player);
     }
 
+    /**
+     * Checks if the specified player has won the game.
+     *
+     * @param player the player to check
+     * @return true if the player has won, false otherwise
+     */
     public boolean checkWin(Player player) {
         Corner goalCorner = player.getCorner().getOpposite();
         Set<Position> winningPositions = new HashSet<>(ruleset.getStartingPositions(goalCorner));
@@ -111,10 +154,20 @@ public class GameManager {
                     .allMatch(winningPositions::contains);
     }
 
+    /**
+     * Gets the current player's turn.
+     *
+     * @return the current player's turn
+     */
     public Corner getCurrentTurn() {
         return currentTurn.orElse(null);
     }
 
+    /**
+     * Ends the turn for the specified player and sets the next player's turn.
+     *
+     * @param player the player ending their turn
+     */
     public void endTurn(Player player) {
         if(player.getCorner() != currentTurn.get()) {
             System.out.println("Player " + player.getName() + " tried to end turn when it's not their turn");
@@ -126,6 +179,9 @@ public class GameManager {
         System.out.println(currentTurn);
     }
 
+    /**
+     * Sets the next player's turn.
+     */
     private void setNextTurn() {
         currentTurn = currentTurn.map(corner -> 
             takenCorners.get((takenCorners.indexOf(corner) + 1) % takenCorners.size())

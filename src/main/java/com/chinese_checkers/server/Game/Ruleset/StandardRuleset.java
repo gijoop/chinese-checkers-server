@@ -17,7 +17,10 @@ import com.chinese_checkers.server.Game.MoveValidator.MoveValidator;
 import com.chinese_checkers.server.Game.MoveValidator.OccupiedValidator;
 import com.chinese_checkers.server.Game.MoveValidator.ReachablePositionValidator;
 
-
+/**
+ * The StandardRuleset class implements the Ruleset interface and provides the standard rules for a game of Chinese Checkers.
+ * It includes methods for validating moves, checking if a position is in bounds, and retrieving starting positions and reachable moves or jumps.
+ */
 public class StandardRuleset implements Ruleset {
     private static final Position[] DIRECTIONS = {
         new Position(1, 0), new Position(0, 1), new Position(-1, 0), 
@@ -29,6 +32,12 @@ public class StandardRuleset implements Ruleset {
     private Set<Position> validPositions;
     private int playerCount;
 
+    /**
+     * Constructs a StandardRuleset object with the specified board and corner helper.
+     *
+     * @param board the game board
+     * @param cornerHelper the corner helper for managing corner-related configurations
+     */
     public StandardRuleset(Board board, CornerHelper cornerHelper) {
         this.board = board;
         this.cornerHelper = cornerHelper;
@@ -50,6 +59,11 @@ public class StandardRuleset implements Ruleset {
         return move.getResult();
     }
 
+    /**
+     * Retrieves the set of positions that are within the bounds of the game board.
+     *
+     * @return a set of valid positions
+     */
     private Set<Position> getInBoundPositions() {
         Set<Position> validPositions = new HashSet<>();
         int size = board.getSize();
@@ -97,6 +111,13 @@ public class StandardRuleset implements Ruleset {
         return startingPositions;
     }
 
+    /**
+     * Inverts a triangle of positions.
+     *
+     * @param triangle the triangle to invert
+     * @param triSize the size of the triangle
+     * @return the inverted triangle
+     */
     private ArrayList<Position> invertTriangle(ArrayList<Position> triangle, int triSize) {
         return triangle.stream()
             .map(p -> new Position(triSize - 1 - p.getX(), -p.getY()))
