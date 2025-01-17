@@ -117,7 +117,7 @@ public class PlayerConnection implements Runnable {
             
         }
         else {
-            send(new ResponseMessage("request_join", "join request denied"));
+            send(new ResponseMessage("request_join", ResponseMessage.Status.FAILURE, "join request denied"));
         }
     }
 }
