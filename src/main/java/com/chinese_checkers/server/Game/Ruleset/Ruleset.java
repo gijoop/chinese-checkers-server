@@ -69,4 +69,11 @@ public interface Ruleset {
      * @return a list of reachable jump positions
      */
     public ArrayList<Position> getReachableJumps(Position position);
+
+    /**
+     * Gets the name of the ruleset.
+     *
+     * @return the name of the ruleset
+     */
+    public String getName();
 }

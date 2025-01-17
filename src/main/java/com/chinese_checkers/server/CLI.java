@@ -1,6 +1,13 @@
 package com.chinese_checkers.server;
 
+import com.chinese_checkers.comms.Player.Corner;
 import com.chinese_checkers.server.Connection.Server;
+import com.chinese_checkers.server.Game.Board;
+import com.chinese_checkers.server.Game.StandardBoard;
+import com.chinese_checkers.server.Game.Ruleset.CornerHelper;
+import com.chinese_checkers.server.Game.Ruleset.FastPacedRuleset;
+import com.chinese_checkers.server.Game.Ruleset.Ruleset;
+import com.chinese_checkers.server.Game.Ruleset.StandardRuleset;
 
 /**
  * The CLI class provides a command-line interface for the Chinese Checkers Server.
@@ -35,14 +42,18 @@ public class CLI {
         System.out.println("Chinese Checkers Server CLI started");
         System.out.println("Usage: <command> <args>\n Available commands: \n" +
         "- set_port <1024 - 65535> \n " +
-        "- set_player_count <2 - 10> \n " +
+        "- set_player_count <2, 3, 4, 6> \n " +
+        "- select_ruleset <standard/fast_paced> \n " +
         "- start\n " +
         "- exit\n");
         
         int playerCount = 2;
         int port = 12345;
+        Board board = new StandardBoard(5);
+        CornerHelper cornerHelper = new CornerHelper(playerCount, board);
+        Ruleset ruleset = new StandardRuleset(board, cornerHelper);
         Server server = null;
-        System.out.println("Default port: " + port + "\nDefault player count: " + playerCount);
+        System.out.println("Default port: " + port + "\nDefault player count: " + playerCount + "\nDefault ruleset: standard");
 
         while (true) {
             System.out.print("> ");
@@ -76,24 +87,43 @@ public class CLI {
                 
                 try {
                     playerCount = Integer.parseInt(tokens[1]);
+                    cornerHelper = new CornerHelper(playerCount, board);
+                    if(ruleset instanceof FastPacedRuleset){
+                        ruleset = new FastPacedRuleset(board, cornerHelper);
+                    }else{
+                        ruleset = new StandardRuleset(board, cornerHelper);
+                    }
                 } catch (NumberFormatException e) {
                     System.out.println("Player count must be an integer");
                     continue;
                 }
 
-                if (playerCount < 2 || playerCount > 10) {
-                    System.out.println("Player count must be between 2 and 10");
+                if (playerCount < 2 || playerCount > 6 || playerCount == 5) {
+                    System.out.println("Player count must be 2, 3, 4 or 6");
                     continue;
                 }
 
 
                 System.out.println("Player count set to " + playerCount);
+            } else if(tokens[0].equals("select_ruleset")){
+                if(tokens.length != 2){
+                    System.out.println("Invalid number of arguments");
+                    continue;
+                }
+                if(tokens[1].equals("standard")){
+                    ruleset = new StandardRuleset(board, cornerHelper);
+                }else if(tokens[1].equals("fast_paced")){
+                    ruleset = new FastPacedRuleset(board, cornerHelper);
+                }else{
+                    System.out.println("Invalid ruleset");
+                }
+                System.out.println("Ruleset set to " + ruleset.getName());
             } else if (tokens[0].equals("start")) {
                 if (server != null) {
                     System.out.println("Server already started");
                     continue;
                 }
-                server = new Server(playerCount, port);
+                server = new Server(playerCount, port, ruleset, board, cornerHelper);
                 server.start();
             } else if (tokens[0].equals("stop")) {
                 if (server != null) {

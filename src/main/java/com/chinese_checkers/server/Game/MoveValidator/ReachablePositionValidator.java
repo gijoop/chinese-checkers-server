@@ -31,6 +31,7 @@ public class ReachablePositionValidator extends MoveValidatorDecorator {
         Position goal = move.getGoal();
         if(!ruleset.getReachableMoves(start).contains(goal)){
             if(!ruleset.getReachableJumps(start).contains(goal)){
+                System.out.println("Reachable jumps: " + ruleset.getReachableJumps(start));
                 move.setResult(MoveResult.UNREACHABLE);
             }else{
                 move.setResult(MoveResult.SUCCESS_JUMP);
