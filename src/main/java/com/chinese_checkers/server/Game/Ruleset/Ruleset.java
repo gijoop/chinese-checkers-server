@@ -19,12 +19,12 @@ public interface Ruleset {
     public enum MoveResult {
         SUCCESS,
         SUCCESS_JUMP,
+        SUCCESS_WIN,
         INVALID_MOVE,
         OCCUPIED,
         OUT_OF_BOUNDS,
         INVALID_PAWN,
         NOT_YOUR_TURN,
-        GAME_OVER,
         UNREACHABLE,
         OUT_OF_GOAL
     }

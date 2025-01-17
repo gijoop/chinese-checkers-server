@@ -94,6 +94,7 @@ public class GameManager {
         }
 
         MoveResult result = ruleset.validateMove(pawn, p);
+        boolean endTurn = true;
 
         if(result == MoveResult.SUCCESS) {
             if(jumpedPawn == null) {
@@ -101,8 +102,8 @@ public class GameManager {
                 board.movePawn(pawn, p);
             }
             else{
-                System.out.println("Player " + player.getName() + " tried move pawn " + pawnId + " after jump: " + MoveResult.INVALID_MOVE);
-                return MoveResult.INVALID_MOVE;
+                result = MoveResult.INVALID_MOVE;
+                endTurn = false;
             }
         }
         else if(result == MoveResult.SUCCESS_JUMP) {
@@ -110,23 +111,27 @@ public class GameManager {
                 System.out.println("Player " + player.getName() + " jumped pawn " + pawnId + " to (" + p.getX() + ", " + p.getY() + ")");
                 board.movePawn(pawn, p);
                 jumpedPawn = pawn;
-                return result;
+                endTurn = false;
             }else{
-                System.out.println("Player " + player.getName() + " tried to jump with different pawn: " + MoveResult.INVALID_MOVE);
-                return MoveResult.INVALID_MOVE;
+                result = MoveResult.INVALID_MOVE;
+                endTurn = false;
             }
         }
         else {
             System.out.println("Player " + player.getName() + " tried to move pawn " + pawnId + " to (" + p.getX() + ", " + p.getY() + ") but it was invalid: " + result);
-            return result;
+            endTurn = false;
         }
 
         if(checkWin(player)) {
             System.out.println("Player " + player.getName() + " won the game!");
-            return MoveResult.GAME_OVER;
+            takenCorners.remove(player.getCorner());
+            endTurn = true;
+            result = MoveResult.SUCCESS_WIN;
         }
         
-        endTurn(player);
+        if(endTurn) {
+            endTurn(player);
+        }
         return result;
     }
 
