@@ -153,21 +153,27 @@ public class Server {
         Corner startTurn = gameManager.getCurrentTurn();
         MoveResult result = gameManager.checkAndMove(msg.pawnID, pos, player);
 
-        ResponseMessage.Status status = (result == MoveResult.SUCCESS ||  result == MoveResult.SUCCESS_JUMP) ? ResponseMessage.Status.SUCCESS : ResponseMessage.Status.FAILURE;
+        ResponseMessage responseMsg = new ResponseMessage(
+            "move_request",
+            ResponseMessage.Status.SUCCESS,
+            "Move successful");
 
-        sendToPlayer(player.getId(), new ResponseMessage("move_request", status, result.toString()));
+        if(result != MoveResult.SUCCESS ||  result != MoveResult.SUCCESS_JUMP){
+            responseMsg.setStatus(ResponseMessage.Status.FAILURE);
+            sendToPlayer(player.getId(), responseMsg);
+            return;
+        }
+
+        sendToPlayer(player.getId(), responseMsg);
+
+        Message validatedMoveMsg = new MovePlayerMessage(player.getId(), msg.pawnID, msg.x, msg.y);
+        sendToAll(validatedMoveMsg);
+
         if(result == MoveResult.GAME_OVER) {
             sendToAll(new ResponseMessage("game_over", ResponseMessage.Status.GAME_OVER, "Game over! Player " + player.getName() + " has won!"));
             stop();
             return;
         }
-        if (result != MoveResult.SUCCESS || result == MoveResult.SUCCESS_JUMP) {
-            sendToPlayer(player.getId(), new ResponseMessage("move_request", ResponseMessage.Status.FAILURE, "Invalid move: " + result.toString()));
-            return;
-        }
-
-        Message validatedMoveMsg = new MovePlayerMessage(player.getId(), msg.pawnID, msg.x, msg.y);
-        sendToAll(validatedMoveMsg);
 
         if (gameManager.getCurrentTurn() != startTurn) {
             sendToAll(new NextRoundMessage(getPlayerOfTurn(gameManager.getCurrentTurn())));
