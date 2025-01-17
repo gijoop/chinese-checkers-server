@@ -2,6 +2,31 @@ package com.chinese_checkers.server;
 
 import com.chinese_checkers.server.Connection.Server;
 
+/**
+ * The CLI class provides a command-line interface for the Chinese Checkers Server.
+ * It allows users to configure the server's port and player count, start and stop the server, and exit the CLI.
+ * 
+ * Commands:
+ * - set_port [1024 - 65535]: Sets the server port to the specified value within the range.
+ * - set_player_count [2 - 10]: Sets the number of players for the server within the specified range.
+ * - start: Starts the server with the configured port and player count.
+ * - stop: Stops the server if it is running.
+ * - exit: Exits the CLI and stops the server if it is running.
+ * 
+ * Default values:
+ * - Default port: 12345
+ * - Default player count: 2
+ * 
+ * Usage:
+ * [command] [args]
+ * 
+ * Example:
+ *  set_port 8080
+ *  set_player_count 4
+ *  start
+ *  stop
+ *  exit
+ */
 public class CLI {
     public CLI() {
     }

@@ -26,11 +26,16 @@ import com.chinese_checkers.comms.Player;
 import com.chinese_checkers.comms.Position;
 import com.chinese_checkers.comms.Message.Message;
 
+/**
+ * The Server class manages the server-side logic for a game of Chinese Checkers.
+ * It handles player connections, sending and receiving messages, and executing actions based on them.
+ */
 public class Server {
     private int playerID = 1000;
     
     /**
-     * Get the next avaiable player ID
+     * Get the next available player ID.
+     *
      * @return ID of the next player
      */
     public int getplayerID() {
@@ -46,6 +51,13 @@ public class Server {
     private ExecutorService connectionPool;
     private ReentrantLock socketLock = new ReentrantLock();
 
+    /**
+     * Constructs a Server object with the specified player count and port.
+     *
+     * @param playerCount the number of players in the game
+     * @param port the port to run the server on
+     * @throws IllegalArgumentException if the player count or port is out of valid range
+     */
     public Server(final int playerCount, final int port) throws IllegalArgumentException {
         if (playerCount < 2 || playerCount > 6) {
             throw new IllegalArgumentException("Player count must be between 2 and 6");
@@ -66,6 +78,9 @@ public class Server {
         this.gameManager = new GameManager(board, ruleset, pawnsPerPlayer);
     }
 
+    /**
+     * Starts the server and waits for players to connect.
+     */
     public void start() {
         System.out.println("Server started on port " + port);
         playerConnections = new HashMap<>(playerCount);
@@ -101,7 +116,6 @@ public class Server {
             }
 
             try {
-                // the CPU is eepy
                 Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -117,11 +131,14 @@ public class Server {
         
         sendToAll(msg);
 
-        NextRoundMessage nextRoundMsg = new NextRoundMessage(getPlayerOfTurn(gameManager.getCurrentTurn()));
+        NextRoundMessage nextRoundMsg = new NextRoundMessage(getPlayerOfTurn());
 
         sendToAll(nextRoundMsg);
     }
 
+    /**
+     * Stops the server and terminates all player connections.
+     */
     public void stop() {
         for (PlayerConnection connection : playerConnections.values()) {
             connection.terminate();
@@ -131,15 +148,27 @@ public class Server {
         try {
             listener.close();
         } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
+    /**
+     * Sends a message to all connected players.
+     *
+     * @param msg the message to send
+     */
     private void sendToAll(Message msg) {
         for (PlayerConnection connections : playerConnections.values()) {
             connections.send(msg);
         }
     }
 
+    /**
+     * Sends a message to a specific player.
+     *
+     * @param playerID the ID of the player to send the message to
+     * @param msg the message to send
+     */
     private void sendToPlayer(int playerID, Message msg) {
         PlayerConnection playerConn = playerConnections.get(playerID);
         if (playerConn != null) {
@@ -147,6 +176,12 @@ public class Server {
         }
     }
 
+    /**
+     * Handles a move request from a player.
+     *
+     * @param msg the move request message
+     * @param player the player making the move
+     */
     public void moveCallback(MoveRequestMessage msg, Player player) {
         Position pos = new Position(msg.x, msg.y);
 
@@ -176,21 +211,30 @@ public class Server {
         }
 
         if (gameManager.getCurrentTurn() != startTurn) {
-            sendToAll(new NextRoundMessage(getPlayerOfTurn(gameManager.getCurrentTurn())));
+            sendToAll(new NextRoundMessage(getPlayerOfTurn()));
         }
     }
 
+    /**
+     * Handles the end turn request from a player.
+     *
+     * @param player the player ending their turn
+     */
     public void endTurnCallback(Player player) {
         gameManager.endTurn(player);
-        sendToAll(new NextRoundMessage(getPlayerOfTurn(gameManager.getCurrentTurn())));
+        sendToAll(new NextRoundMessage(getPlayerOfTurn()));
     }
 
-    private int getPlayerOfTurn(Corner turn) {
+    /**
+     * Gets the ID of the player whose turn it is.
+     *
+     * @return the ID of the player whose turn it is
+     */
+    private int getPlayerOfTurn() {
         return playerConnections.values().stream()
-                .filter(connection -> connection.getPlayer().getCorner() == turn)
+                .filter(connection -> connection.getPlayer().getCorner() == gameManager.getCurrentTurn())
                 .map(connection -> connection.getPlayer().getId())
                 .findFirst()
                 .orElse(-1);
     }
 }
-

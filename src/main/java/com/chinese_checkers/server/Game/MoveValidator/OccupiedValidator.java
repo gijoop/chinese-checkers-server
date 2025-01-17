@@ -18,6 +18,12 @@ public class OccupiedValidator extends MoveValidatorDecorator {
         super.validateMove(move);
     }
 
+    /**
+     * Validates if the goal position of the given move is occupied.
+     * If the goal position is occupied, sets the move result to OCCUPIED.
+     *
+     * @param move the move to be validated
+     */
     private void validateOccupied(Move move) {
         if(board.isOccupied(move.getGoal())){
             move.setResult(MoveResult.OCCUPIED);
