@@ -195,6 +195,12 @@ public class Server {
             ResponseMessage.Status.SUCCESS,
             result.toString());
 
+        if(result == MoveResult.GAME_OVER) {
+            sendToAll(new GameEndMessage("Game over! Player " + player.getName() + " has won!"));
+            stop();
+            return;
+        }
+
         if(result != MoveResult.SUCCESS && result != MoveResult.SUCCESS_JUMP){
             responseMsg.setStatus(ResponseMessage.Status.FAILURE);
             sendToPlayer(player.getId(), responseMsg);
@@ -205,12 +211,6 @@ public class Server {
 
         Message validatedMoveMsg = new MovePlayerMessage(player.getId(), msg.pawnID, msg.x, msg.y);
         sendToAll(validatedMoveMsg);
-
-        if(result == MoveResult.GAME_OVER) {
-            sendToAll(new GameEndMessage("Game over! Player " + player.getName() + " has won!"));
-            stop();
-            return;
-        }
 
         if (gameManager.getCurrentTurn() != startTurn) {
             sendToAll(new NextRoundMessage(getPlayerOfTurn()));
