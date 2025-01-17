@@ -25,7 +25,7 @@ public class GameManager {
     private int pawnsPerPlayer;
     private Optional<Corner> currentTurn;
     private ArrayList<Corner> takenCorners;
-    private boolean hasJumped;
+    private Pawn jumpedPawn;
     private CornerHelper cornerHelper;
 
     /**
@@ -41,7 +41,7 @@ public class GameManager {
         this.pawnsPerPlayer = pawnsPerPlayer;
         this.currentTurn = Optional.empty();
         this.takenCorners = new ArrayList<>();
-        this.hasJumped = false;
+        this.jumpedPawn = null;
     }
 
     /**
@@ -95,19 +95,25 @@ public class GameManager {
 
         MoveResult result = ruleset.validateMove(pawn, p);
 
-        if(result == MoveResult.SUCCESS && !hasJumped) {
-            System.out.println("Player " + player.getName() + " moved pawn " + pawnId + " to (" + p.getX() + ", " + p.getY() + ")");
-            board.movePawn(pawn, p);
+        if(result == MoveResult.SUCCESS) {
+            if(jumpedPawn == null) {
+                System.out.println("Player " + player.getName() + " moved pawn " + pawnId + " to (" + p.getX() + ", " + p.getY() + ")");
+                board.movePawn(pawn, p);
+            }
+            else{
+                System.out.println("Player " + player.getName() + " tried move pawn " + pawnId + " after jump: " + MoveResult.INVALID_MOVE);
+                return MoveResult.INVALID_MOVE;
+            }
         }
         else if(result == MoveResult.SUCCESS_JUMP) {
-            System.out.println("Player " + player.getName() + " jumped pawn " + pawnId + " to (" + p.getX() + ", " + p.getY() + ")");
-            board.movePawn(pawn, p);
-            hasJumped = true;
-            return result;
-        }
-        else if(result == MoveResult.SUCCESS && hasJumped) {
-            System.out.println("Player " + player.getName() + " tried move pawn " + pawnId + " to (" + p.getX() + ", " + p.getY() + ") after jump: " + MoveResult.INVALID_MOVE);
-            return MoveResult.INVALID_MOVE;
+            if(jumpedPawn == pawn || jumpedPawn == null) {
+                System.out.println("Player " + player.getName() + " jumped pawn " + pawnId + " to (" + p.getX() + ", " + p.getY() + ")");
+                board.movePawn(pawn, p);
+                jumpedPawn = pawn;
+                return result;
+            }else{
+                System.out.println("Player " + player.getName() + " tried to jump with different pawn: " + MoveResult.INVALID_MOVE);
+            }
         }
         else {
             System.out.println("Player " + player.getName() + " tried to move pawn " + pawnId + " to (" + p.getX() + ", " + p.getY() + ") but it was invalid: " + result);
@@ -190,6 +196,6 @@ public class GameManager {
         currentTurn = currentTurn.map(corner -> 
             takenCorners.get((takenCorners.indexOf(corner) + 1) % takenCorners.size())
         );
-        hasJumped = false;
+        jumpedPawn = null;
     } 
 }
