@@ -10,13 +10,12 @@ import java.util.stream.Collectors;
 
 import com.chinese_checkers.comms.Message.FromClient.EndTurnMessage;
 import com.chinese_checkers.comms.Message.FromClient.MoveRequestMessage;
-import com.chinese_checkers.comms.Message.FromServer.GameEndMessage;
+import com.chinese_checkers.comms.Message.FromServer.AnnounceWinnerMessage;
 import com.chinese_checkers.comms.Message.FromServer.GameStartMessage;
 import com.chinese_checkers.comms.Message.FromServer.MovePlayerMessage;
 import com.chinese_checkers.comms.Message.FromServer.NextRoundMessage;
 import com.chinese_checkers.comms.Message.FromServer.ResponseMessage;
 import com.chinese_checkers.comms.Player.Corner;
-import com.chinese_checkers.server.Game.Move;
 import com.chinese_checkers.server.Game.StandardBoard;
 import com.chinese_checkers.server.Game.Ruleset.CornerHelper;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset;
@@ -46,6 +45,7 @@ public class Server {
     
     private final int playerCount;
     private final int port;
+    private int latestPlace = 1;
 
     private HashMap<Integer, PlayerConnection> playerConnections;
     private GameManager gameManager;
@@ -195,13 +195,10 @@ public class Server {
             ResponseMessage.Status.SUCCESS,
             result.toString());
 
-        if(result == MoveResult.GAME_OVER) {
-            sendToAll(new GameEndMessage("Game over! Player " + player.getName() + " has won!"));
-            stop();
-            return;
-        }
-
-        if(result != MoveResult.SUCCESS && result != MoveResult.SUCCESS_JUMP){
+        if(result == MoveResult.SUCCESS_WIN) {
+            sendToAll(new AnnounceWinnerMessage(player.getId(), latestPlace++));
+            
+        }else if(result != MoveResult.SUCCESS && result != MoveResult.SUCCESS_JUMP){
             responseMsg.setStatus(ResponseMessage.Status.FAILURE);
             sendToPlayer(player.getId(), responseMsg);
             return;
