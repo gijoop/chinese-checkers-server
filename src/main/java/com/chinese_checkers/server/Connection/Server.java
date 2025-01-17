@@ -14,6 +14,7 @@ import com.chinese_checkers.comms.Message.FromServer.MovePlayerMessage;
 import com.chinese_checkers.comms.Message.FromServer.NextRoundMessage;
 import com.chinese_checkers.comms.Message.FromServer.ResponseMessage;
 import com.chinese_checkers.comms.Player.Corner;
+import com.chinese_checkers.server.Game.Move;
 import com.chinese_checkers.server.Game.StandardBoard;
 import com.chinese_checkers.server.Game.Ruleset.CornerHelper;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset;
@@ -152,14 +153,16 @@ public class Server {
         Corner startTurn = gameManager.getCurrentTurn();
         MoveResult result = gameManager.checkAndMove(msg.pawnID, pos, player);
 
-        sendToPlayer(player.getId(), new ResponseMessage("move_request", result.toString()));
+        ResponseMessage.Status status = (result == MoveResult.SUCCESS ||  result == MoveResult.SUCCESS_JUMP) ? ResponseMessage.Status.SUCCESS : ResponseMessage.Status.FAILURE;
+
+        sendToPlayer(player.getId(), new ResponseMessage("move_request", status, result.toString()));
         if(result == MoveResult.GAME_OVER) {
-            sendToAll(new ResponseMessage("game_over", "Game over! Player " + player.getName() + " has won!"));
+            sendToAll(new ResponseMessage("game_over", ResponseMessage.Status.GAME_OVER, "Game over! Player " + player.getName() + " has won!"));
             stop();
             return;
         }
         if (result != MoveResult.SUCCESS || result == MoveResult.SUCCESS_JUMP) {
-            sendToPlayer(player.getId(), new ResponseMessage("move_request", "Invalid move: " + result.toString()));
+            sendToPlayer(player.getId(), new ResponseMessage("move_request", ResponseMessage.Status.FAILURE, "Invalid move: " + result.toString()));
             return;
         }
 
