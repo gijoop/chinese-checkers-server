@@ -8,7 +8,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
+import com.chinese_checkers.comms.Message.FromClient.EndTurnMessage;
 import com.chinese_checkers.comms.Message.FromClient.MoveRequestMessage;
+import com.chinese_checkers.comms.Message.FromServer.GameEndMessage;
 import com.chinese_checkers.comms.Message.FromServer.GameStartMessage;
 import com.chinese_checkers.comms.Message.FromServer.MovePlayerMessage;
 import com.chinese_checkers.comms.Message.FromServer.NextRoundMessage;
@@ -205,7 +207,7 @@ public class Server {
         sendToAll(validatedMoveMsg);
 
         if(result == MoveResult.GAME_OVER) {
-            sendToAll(new ResponseMessage("game_over", ResponseMessage.Status.GAME_OVER, "Game over! Player " + player.getName() + " has won!"));
+            sendToAll(new GameEndMessage("Game over! Player " + player.getName() + " has won!"));
             stop();
             return;
         }
@@ -220,7 +222,7 @@ public class Server {
      *
      * @param player the player ending their turn
      */
-    public void endTurnCallback(Player player) {
+    public void endTurnCallback(EndTurnMessage msg, Player player) {
         gameManager.endTurn(player);
         sendToAll(new NextRoundMessage(getPlayerOfTurn()));
     }
