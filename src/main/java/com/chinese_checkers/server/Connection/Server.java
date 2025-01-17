@@ -156,9 +156,9 @@ public class Server {
         ResponseMessage responseMsg = new ResponseMessage(
             "move_request",
             ResponseMessage.Status.SUCCESS,
-            "Move successful");
+            result.toString());
 
-        if(result != MoveResult.SUCCESS ||  result != MoveResult.SUCCESS_JUMP){
+        if(result != MoveResult.SUCCESS && result != MoveResult.SUCCESS_JUMP){
             responseMsg.setStatus(ResponseMessage.Status.FAILURE);
             sendToPlayer(player.getId(), responseMsg);
             return;
