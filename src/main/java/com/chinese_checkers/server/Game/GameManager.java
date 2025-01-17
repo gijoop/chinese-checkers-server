@@ -105,6 +105,10 @@ public class GameManager {
             hasJumped = true;
             return result;
         }
+        else if(result == MoveResult.SUCCESS && hasJumped) {
+            System.out.println("Player " + player.getName() + " tried move pawn " + pawnId + " to (" + p.getX() + ", " + p.getY() + ") after jump: " + MoveResult.INVALID_MOVE);
+            return MoveResult.INVALID_MOVE;
+        }
         else {
             System.out.println("Player " + player.getName() + " tried to move pawn " + pawnId + " to (" + p.getX() + ", " + p.getY() + ") but it was invalid: " + result);
             return result;
