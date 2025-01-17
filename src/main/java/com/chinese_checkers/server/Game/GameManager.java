@@ -54,6 +54,7 @@ public class GameManager {
         cornerHelper = new CornerHelper(players.size(), board);
         ArrayList<Corner> startingCorners = cornerHelper.getStartingCorners();
         GameStartMessage gameStartMessage = new GameStartMessage(board.getSize());
+        gameStartMessage.setVariant(ruleset.getName());
         
         for(Player player : players) {
             Corner corner = startingCorners.remove(0);

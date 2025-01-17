@@ -18,6 +18,7 @@ import com.chinese_checkers.comms.Message.FromServer.ResponseMessage;
 import com.chinese_checkers.comms.Player.Corner;
 import com.chinese_checkers.server.Game.StandardBoard;
 import com.chinese_checkers.server.Game.Ruleset.CornerHelper;
+import com.chinese_checkers.server.Game.Ruleset.FastPacedRuleset;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset;
 import com.chinese_checkers.server.Game.Ruleset.StandardRuleset;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset.MoveResult;
@@ -60,7 +61,7 @@ public class Server {
      * @param port the port to run the server on
      * @throws IllegalArgumentException if the player count or port is out of valid range
      */
-    public Server(final int playerCount, final int port) throws IllegalArgumentException {
+    public Server(final int playerCount, final int port, Ruleset ruleset, Board board, CornerHelper cornerHelper) throws IllegalArgumentException {
         if (playerCount < 2 || playerCount > 6) {
             throw new IllegalArgumentException("Player count must be between 2 and 6");
         }
@@ -74,9 +75,6 @@ public class Server {
         if(playerCount == 2) {
             pawnsPerPlayer = 15;
         }
-        Board board = new StandardBoard(5);
-        CornerHelper cornerHelper = new CornerHelper(playerCount, board);
-        Ruleset ruleset = new StandardRuleset(board, cornerHelper);
         this.gameManager = new GameManager(board, ruleset, pawnsPerPlayer);
     }
 

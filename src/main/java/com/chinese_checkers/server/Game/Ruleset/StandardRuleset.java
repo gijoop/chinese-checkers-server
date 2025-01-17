@@ -22,15 +22,15 @@ import com.chinese_checkers.server.Game.MoveValidator.ReachablePositionValidator
  * It includes methods for validating moves, checking if a position is in bounds, and retrieving starting positions and reachable moves or jumps.
  */
 public class StandardRuleset implements Ruleset {
-    private static final Position[] DIRECTIONS = {
+    protected static final Position[] DIRECTIONS = {
         new Position(1, 0), new Position(0, 1), new Position(-1, 0), 
         new Position(0, -1), new Position(-1, -1), new Position(1, 1)
     };
 
-    private CornerHelper cornerHelper;
-    private Board board;
-    private Set<Position> validPositions;
-    private int playerCount;
+    protected CornerHelper cornerHelper;
+    protected Board board;
+    protected Set<Position> validPositions;
+    protected int playerCount;
 
     /**
      * Constructs a StandardRuleset object with the specified board and corner helper.
@@ -152,5 +152,8 @@ public class StandardRuleset implements Ruleset {
         }
         return jumps;
     }
-    
+
+    public String getName() {
+        return "Standard";
+    }
 }
