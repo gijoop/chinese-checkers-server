@@ -113,6 +113,7 @@ public class GameManager {
                 return result;
             }else{
                 System.out.println("Player " + player.getName() + " tried to jump with different pawn: " + MoveResult.INVALID_MOVE);
+                return MoveResult.INVALID_MOVE;
             }
         }
         else {
