@@ -1,6 +1,5 @@
 package com.chinese_checkers.server;
 
-import com.chinese_checkers.comms.Player.Corner;
 import com.chinese_checkers.server.Connection.Server;
 import com.chinese_checkers.server.Game.Board;
 import com.chinese_checkers.server.Game.StandardBoard;
