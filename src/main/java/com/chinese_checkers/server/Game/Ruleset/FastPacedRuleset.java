@@ -3,9 +3,6 @@ package com.chinese_checkers.server.Game.Ruleset;
 import com.chinese_checkers.comms.Position;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-
 
 import com.chinese_checkers.server.Game.Board;
 
