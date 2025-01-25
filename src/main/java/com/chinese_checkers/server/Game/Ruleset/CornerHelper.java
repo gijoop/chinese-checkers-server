@@ -6,7 +6,6 @@ import java.util.Map;
 
 import com.chinese_checkers.comms.Position;
 import com.chinese_checkers.comms.Player.Corner;
-import com.chinese_checkers.server.Game.Board;
 
 /**
  * The CornerHelper class provides utility methods for handling corner-related configurations in the game.
@@ -24,9 +23,9 @@ public class CornerHelper {
      * @param playerCount the number of players in the game
      * @param board the game board
      */
-    public CornerHelper(int playerCount, Board board) {
+    public CornerHelper(int playerCount, int boardSize) {
         this.playerCount = playerCount;
-        this.boardSize = board.getSize();
+        this.boardSize = boardSize;
         this.cornerOffsets = initializeOffsets();
         this.startingCorners = initializeCorners();
     }

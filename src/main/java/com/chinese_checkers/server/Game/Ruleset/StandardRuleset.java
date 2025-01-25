@@ -45,6 +45,10 @@ public class StandardRuleset implements Ruleset {
         this.validPositions = getInBoundPositions();
     }
 
+    public type getType() {
+        return type.STANDARD;
+    }
+
     public MoveResult validateMove(Pawn pawn, Position position) {
         Move move = new Move(board.getPositionOf(pawn), position);
         Corner playerCorner = pawn.getOwner().getCorner();

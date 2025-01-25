@@ -58,7 +58,15 @@ public class Server {
      * @param port the port to run the server on
      * @throws IllegalArgumentException if the player count or port is out of valid range
      */
-    public Server(final int playerCount, final int botCount, final int port, Ruleset ruleset, Board board, CornerHelper cornerHelper) throws IllegalArgumentException {
+    public Server(
+        final int playerCount, 
+        final int botCount, 
+        final int port, 
+        Ruleset ruleset, 
+        Board board, 
+        CornerHelper cornerHelper) 
+        throws IllegalArgumentException {
+
         if (playerCount < 2 || playerCount > 6) {
             throw new IllegalArgumentException("Player count must be between 2 and 6");
         }
@@ -78,7 +86,7 @@ public class Server {
     /**
      * Starts the server and waits for players to connect.
      */
-    public void start() {
+    public void start(int loadGameId) {
         System.out.println("Server started on port " + port);
         playerConnections = new HashMap<>(playerCount);
 
@@ -124,7 +132,7 @@ public class Server {
         GameStartMessage msg = gameManager.initializeGame(playerConnections.values()
                                     .stream()
                                     .map(PlayerConnection::getPlayer)
-                                    .collect(Collectors.toList()));
+                                    .collect(Collectors.toList()), loadGameId);
         
         sendToAll(msg);
 
