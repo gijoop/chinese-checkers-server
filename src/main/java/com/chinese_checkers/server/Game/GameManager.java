@@ -8,6 +8,7 @@ import java.util.Set;
 
 import com.chinese_checkers.comms.Player;
 import com.chinese_checkers.comms.Player.Corner;
+import com.chinese_checkers.server.DBConnection.Game;
 import com.chinese_checkers.server.Game.Ruleset.CornerHelper;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset.MoveResult;
@@ -27,7 +28,6 @@ public class GameManager {
     private ArrayList<Corner> takenCorners;
     private Pawn jumpedPawn;
     private CornerHelper cornerHelper;
-    private SaveManager gameSaver;
 
     /**
      * Constructs a GameManager object with the specified board, ruleset, and number of pawns per player.
@@ -43,7 +43,6 @@ public class GameManager {
         this.currentTurn = Optional.empty();
         this.takenCorners = new ArrayList<>();
         this.jumpedPawn = null;
-        this.gameSaver = new SaveManager();
     }
 
     /**
@@ -52,7 +51,7 @@ public class GameManager {
      * @param players the players participating in the game
      * @return a GameStartMessage containing the initial state of the game
      */
-    public GameStartMessage initializeGame(Collection<Player> players, int loadGameId) {
+    public GameStartMessage initializeGame(Collection<Player> players, Game loadGame) {
         cornerHelper = new CornerHelper(players.size(), board.getSize());
         ArrayList<Corner> startingCorners = cornerHelper.getStartingCorners();
         GameStartMessage gameStartMessage = new GameStartMessage(board.getSize());
@@ -70,12 +69,13 @@ public class GameManager {
             }
         }
 
-        if(loadGameId != -1) {
-            gameSaver.loadGameToBoard(loadGameId, board);
-            currentTurn = Optional.of(gameSaver.getCurrentTurn());
-        }else{
+        SaveManager saveManager = SaveManager.getInstance();
+        if(loadGame != null){
+            saveManager.loadGameToBoard(loadGame, board);
+            currentTurn = Optional.of(saveManager.getCurrentTurn());
+        } else{
             currentTurn = Optional.of(players.stream().skip((int)(players.size() * Math.random())).findFirst().get().getCorner());
-            gameSaver.newGame(players.size(), ruleset.getType(), currentTurn.get(), board.getSize());
+            saveManager.newGame(players.size(), ruleset.getType(), currentTurn.get(), board.getSize());
         }
 
         for(Pawn pawn : board.getPawns()) {
@@ -143,7 +143,7 @@ public class GameManager {
             result = MoveResult.SUCCESS_WIN;
         }
         
-        gameSaver.addMove(new Move(startPosition, p));
+        SaveManager.getInstance().addMove(new Move(startPosition, p));
         if(endTurn) {
             endTurn(player);
         }

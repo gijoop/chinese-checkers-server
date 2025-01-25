@@ -1,6 +1,7 @@
 package com.chinese_checkers.server.Game;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -8,9 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import com.chinese_checkers.comms.Player.Corner;
 import com.chinese_checkers.comms.Pawn;
 import com.chinese_checkers.comms.Position;
-import com.chinese_checkers.comms.Message.FromServer.GameStartMessage;
 import com.chinese_checkers.server.DBConnection.Game;
-import com.chinese_checkers.server.Game.Ruleset.CornerHelper;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset;
 import com.chinese_checkers.server.DBConnection.GameRepository;
 import com.chinese_checkers.server.DBConnection.DBMove;
@@ -26,13 +25,27 @@ public class SaveManager {
 
     private int move_counter;
 
-    public SaveManager() {
+    private static volatile SaveManager instance;
+
+    private SaveManager() {
         context = new AnnotationConfigApplicationContext(SpringConfig.class);
 
         gameRepository = new GameRepository(context.getBean("jdbcTemplate", JdbcTemplate.class));
         moveRepository = new MoveRepository(context.getBean("jdbcTemplate", JdbcTemplate.class));
 
         move_counter = 0;
+    }
+
+    public static SaveManager getInstance() {
+        if (instance != null) {
+            return instance;
+        }
+        synchronized (SaveManager.class) {
+            if (instance == null) {
+                instance = new SaveManager();
+            }
+            return instance;
+        }
     }
 
     public void newGame(int numPlayers, Ruleset.type ruleset, Corner currentTurn, int boardSize) {
@@ -50,10 +63,8 @@ public class SaveManager {
         moveRepository.save(dbmove);
     }
     
-    public void loadGameToBoard(int loadGameId, Board board) {
-        currentGame = gameRepository.findById(loadGameId);
-        int playerCount = currentGame.getNumPlayers();
-        int board_size = currentGame.getBoardSize();
+    public void loadGameToBoard(Game game, Board board) {
+        currentGame = game;
 
         ArrayList<DBMove> moves = (ArrayList<DBMove>) moveRepository.findByGameId(currentGame.getId());
         for (DBMove move : moves) {
@@ -66,8 +77,12 @@ public class SaveManager {
         move_counter = moves.size();
     }
 
-    public String getSaves() {
-        return gameRepository.findAll().toString();
+    public List<Game> getSaves() {
+        return gameRepository.findAll();
+    }
+
+    public Game getGameById(int id) {
+        return gameRepository.findById(id);
     }
 
     public Corner getCurrentTurn() {

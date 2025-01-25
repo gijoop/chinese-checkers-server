@@ -3,8 +3,6 @@ package com.chinese_checkers.server.DBConnection;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-import com.chinese_checkers.comms.Player.Corner;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;

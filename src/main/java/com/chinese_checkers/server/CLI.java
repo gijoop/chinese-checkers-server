@@ -1,7 +1,7 @@
 package com.chinese_checkers.server;
 
 import com.chinese_checkers.server.Connection.Server;
-import com.chinese_checkers.server.DBConnection.MoveRepository;
+import com.chinese_checkers.server.DBConnection.Game;
 import com.chinese_checkers.server.Game.Board;
 import com.chinese_checkers.server.Game.SaveManager;
 import com.chinese_checkers.server.Game.StandardBoard;
@@ -10,6 +10,7 @@ import com.chinese_checkers.server.Game.Ruleset.FastPacedRuleset;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset;
 import com.chinese_checkers.server.Game.Ruleset.StandardRuleset;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -47,7 +48,6 @@ public class CLI
     private int botCount = 0;
     private int port = 12345;
     private String rulesetName = "standard";
-    private int saveId = -1;
     private final Board board = new StandardBoard(5);
 
     private CornerHelper cornerHelper = new CornerHelper(playerCount, board.getSize());
@@ -61,7 +61,7 @@ public class CLI
         "set_player_count", this::setPlayerCount,
         "set_bot_count", this::setBotCount,
         "show_saves", this::showSaves,
-        "load_game", this::loadGame,
+        "load_and_start", this::loadAndStart,
         "select_ruleset", this::selectRuleset,
         "start", this::startServer,
         "stop", this::stopServer,
@@ -86,7 +86,7 @@ public class CLI
         "- set_player_count <2, 3, 4, 6> \n " +
         "- set_bot_count <0 - 5> \n " +
         "- show_saves\n " +
-        "- load_game <game_id>\n " +
+        "- load_and_start <game_id>\n " +
         "- select_ruleset <standard/fast_paced> \n " +
         "- start\n " +
         "- exit\n");
@@ -192,11 +192,16 @@ public class CLI
             return "Invalid number of arguments. Usage: show_saves";
         }
 
-        SaveManager saveManager = new SaveManager();
-        return saveManager.getSaves();
+        List<Game> saves = SaveManager.getInstance().getSaves();
+        String output = "Saved games: \n";
+        for (Game save : saves) {
+            output += save.toString() + "\n";
+        }
+
+        return output;
     }
 
-    private String loadGame(String[] args) {
+    private String loadAndStart(String[] args) {
         if (args.length != 2) {
             return "Invalid number of arguments. Usage: load_game <game_id>";
         }
@@ -212,8 +217,15 @@ public class CLI
             return "Game ID must be a positive integer";
         }
 
-        saveId = gameId;
-        
+        SaveManager saveManager = SaveManager.getInstance();
+        Game game = saveManager.getGameById(gameId);
+        String rulesetName = game.getRuleset().name().toLowerCase();
+        ruleset = rulesets.get(rulesetName);
+        playerCount = game.getNumPlayers();
+        cornerHelper = new CornerHelper(playerCount, board.getSize());
+        server = new Server(playerCount, botCount, port, ruleset, board, cornerHelper);
+        server.start(game);
+
         return "Game with ID " + gameId + " will be loaded upon start";
     }
 
@@ -242,7 +254,7 @@ public class CLI
         ruleset = rulesets.get(rulesetName); // warning: depends on board and cornerHelper
 
         server = new Server(playerCount, botCount, port, ruleset, board, cornerHelper);
-        server.start(saveId);
+        server.start(null);
 
         return  "Server started on port " + port + " with: \n" +
                 "   [player count]: " + playerCount + "\n" +
@@ -273,7 +285,7 @@ public class CLI
         ruleset = rulesets.get(rulesetName); // warning: depends on board and cornerHelper
 
         server = new Server(playerCount, botCount, port, ruleset, board, cornerHelper);
-        server.start(-1);
+        server.start(null);
 
         return  "Server restarted on port " + port + "with: \n" +
                 "   [player count]: " + playerCount + "\n" +
