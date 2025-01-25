@@ -37,7 +37,7 @@ public class Server {
      *
      * @return ID of the next player
      */
-    public int getplayerID() {
+    public int getPlayerID() {
         return playerID++;
     }
     
@@ -58,7 +58,7 @@ public class Server {
      * @param port the port to run the server on
      * @throws IllegalArgumentException if the player count or port is out of valid range
      */
-    public Server(final int playerCount, final int port, Ruleset ruleset, Board board, CornerHelper cornerHelper) throws IllegalArgumentException {
+    public Server(final int playerCount, final int botCount, final int port, Ruleset ruleset, Board board, CornerHelper cornerHelper) throws IllegalArgumentException {
         if (playerCount < 2 || playerCount > 6) {
             throw new IllegalArgumentException("Player count must be between 2 and 6");
         }
@@ -87,7 +87,7 @@ public class Server {
             connectionPool = Executors.newFixedThreadPool(playerCount);
 
             for (int i = 0; i < playerCount; i++) {
-                int playerID = getplayerID();
+                int playerID = getPlayerID();
                 PlayerConnection playerConn = new PlayerConnection(listener, socketLock, this, playerID);
                 connectionPool.execute(playerConn);
                 playerConnections.put(playerID, playerConn);
