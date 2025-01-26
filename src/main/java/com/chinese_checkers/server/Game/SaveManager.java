@@ -53,7 +53,7 @@ public class SaveManager {
         gameRepository.save(currentGame);
     }
 
-    public void addMove(Move move) {
+    public void saveMove(Move move) {
         DBMove dbmove = new DBMove(currentGame.getId(),
             ++move_counter, 
             move.getStart().getX(), 
@@ -87,5 +87,10 @@ public class SaveManager {
 
     public Corner getCurrentTurn() {
         return currentTurn;
+    }
+
+    public void updateSave(Corner currentTurn) {
+        currentGame.setCurrentTurn(currentTurn);
+        gameRepository.update(currentGame);
     }
 }

@@ -72,7 +72,7 @@ public class GameManager {
         SaveManager saveManager = SaveManager.getInstance();
         if(loadGame != null){
             saveManager.loadGameToBoard(loadGame, board);
-            currentTurn = Optional.of(saveManager.getCurrentTurn());
+            currentTurn = Optional.of(loadGame.getCurrentTurn());
         } else{
             currentTurn = Optional.of(players.stream().skip((int)(players.size() * Math.random())).findFirst().get().getCorner());
             saveManager.newGame(players.size(), ruleset.getType(), currentTurn.get(), board.getSize());
@@ -143,10 +143,14 @@ public class GameManager {
             result = MoveResult.SUCCESS_WIN;
         }
         
-        SaveManager.getInstance().addMove(new Move(startPosition, p));
+        SaveManager saveManager = SaveManager.getInstance();
+        saveManager.saveMove(new Move(startPosition, p));
+
         if(endTurn) {
             endTurn(player);
         }
+
+        saveManager.updateSave(currentTurn.get());
         return result;
     }
 

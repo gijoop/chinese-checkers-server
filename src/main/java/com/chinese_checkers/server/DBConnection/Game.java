@@ -7,7 +7,7 @@ import com.chinese_checkers.server.Game.Ruleset.Ruleset;
 
 public class Game {
     private int id;
-    private Date date_created;
+    private Date last_save_date;
     private int numPlayers;
     private Ruleset.type ruleset;
     private Corner currentTurn;
@@ -23,9 +23,9 @@ public class Game {
         this.boardSize = boardSize;
     }
 
-    public Game(int id, Date date_created, int numPlayers, Ruleset.type ruleset, Corner currentTurn, int boardSize) {
+    public Game(int id, Date last_save_date, int numPlayers, Ruleset.type ruleset, Corner currentTurn, int boardSize) {
         this.id = id;
-        this.date_created = date_created;
+        this.last_save_date = last_save_date;
         this.numPlayers = numPlayers;
         this.ruleset = ruleset;
         this.currentTurn = currentTurn;
@@ -37,7 +37,7 @@ public class Game {
     }
 
     public Date getDate() {
-        return date_created;
+        return last_save_date;
     }
 
     public int getNumPlayers() {
@@ -60,8 +60,8 @@ public class Game {
         this.id = id;
     }
 
-    public void setDate(Date date_created) {
-        this.date_created = date_created;
+    public void setDate(Date last_save_date) {
+        this.last_save_date = last_save_date;
     }
 
     public void setNumPlayers(int numPlayers) {
@@ -83,7 +83,7 @@ public class Game {
     @Override
     public String toString() {
         return  "ID: " + id +
-                ", date_created=" + date_created +
+                ", last_save_date=" + last_save_date +
                 ", numPlayers=" + numPlayers +
                 ", ruleset=" + ruleset +
                 ", currentTurn=" + currentTurn +

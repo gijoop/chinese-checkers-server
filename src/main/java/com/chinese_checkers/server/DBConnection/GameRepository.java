@@ -28,18 +28,34 @@ public class GameRepository {
         game.setId(jdbcTemplate.queryForObject("SELECT MAX(id) FROM game", Integer.class));
     }
 
+    public void update(Game game) {
+        String sql = "UPDATE game SET num_players = ?, ruleset = ?, current_turn = ?, board_size = ? WHERE id = ?";
+        jdbcTemplate.update(sql, 
+            game.getNumPlayers(), 
+            game.getRuleset().toString(), 
+            game.getCurrentTurn().toString(), 
+            game.getBoardSize(), 
+            game.getId());
+    }
+
     public Game findById(int id) {
         String sql = "SELECT * FROM game WHERE id = ?";
-        System.out.println("id: " + id);
-        return jdbcTemplate.queryForObject(sql, new GameRowMapper(), id);
+        try {
+            return jdbcTemplate.queryForObject(sql, new GameRowMapper(), id);
+        } catch (Exception e) {
+            return null;
+        }
     }
     
     public List<Game> findAll() {
         String sql = "SELECT * FROM game";
-        return jdbcTemplate.query(sql, new GameRowMapper());
+        try {
+            return jdbcTemplate.query(sql, new GameRowMapper());
+        } catch (Exception e) {
+            return null;
+        }
     }
 
-    
     public void deleteById(int id) {
         String sql = "DELETE FROM game WHERE id = ?";
         jdbcTemplate.update(sql, id);
@@ -50,7 +66,7 @@ public class GameRepository {
         public Game mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Game(
                     rs.getInt("id"),
-                    rs.getDate("date_created"),
+                    rs.getDate("last_save_date"),
                     rs.getInt("num_players"),
                     Ruleset.type.valueOf(rs.getString("ruleset")),
                     Corner.valueOf(rs.getString("current_turn")),

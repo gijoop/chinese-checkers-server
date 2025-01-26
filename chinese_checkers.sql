@@ -26,12 +26,12 @@ DROP TABLE IF EXISTS `game`;
 CREATE TABLE `game` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `num_players` int(11) NOT NULL,
-  `date_created` datetime NOT NULL DEFAULT current_timestamp(),
+  `last_save_date` datetime NOT NULL DEFAULT current_timestamp(),
   `ruleset` enum('STANDARD','FAST_PACED') NOT NULL DEFAULT 'STANDARD',
   `current_turn` enum('UPPER_LEFT','UPPER_RIGHT','LOWER_LEFT','LOWER_RIGHT','UPPER','LOWER') NOT NULL DEFAULT 'UPPER',
   `board_size` int(11) NOT NULL DEFAULT 5,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,7 +40,6 @@ CREATE TABLE `game` (
 
 LOCK TABLES `game` WRITE;
 /*!40000 ALTER TABLE `game` DISABLE KEYS */;
-INSERT INTO `game` VALUES (14,2,'2025-01-25 22:10:26','STANDARD','LOWER',5),(15,2,'2025-01-25 22:13:50','STANDARD','UPPER',5),(16,2,'2025-01-25 22:32:27','STANDARD','UPPER',5),(17,2,'2025-01-25 22:33:18','STANDARD','LOWER',5);
 /*!40000 ALTER TABLE `game` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -62,7 +61,7 @@ CREATE TABLE `move` (
   PRIMARY KEY (`id`),
   KEY `game_id` (`game_id`),
   CONSTRAINT `move_ibfk_1` FOREIGN KEY (`game_id`) REFERENCES `game` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=103 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -71,13 +70,8 @@ CREATE TABLE `move` (
 
 LOCK TABLES `move` WRITE;
 /*!40000 ALTER TABLE `move` DISABLE KEYS */;
-INSERT INTO `move` VALUES (13,1,14,-3,-4,-2,-3),(14,2,14,3,4,3,3),(15,3,14,1,4,1,3),(16,4,14,-4,-4,-3,-3),(17,5,14,3,3,2,2),(18,6,14,-1,-4,0,-2),(19,7,14,-2,-4,-1,-2),(20,8,14,0,-4,1,-2),(21,9,14,0,-2,0,-2),(22,10,14,-1,-2,-1,-2),(23,11,14,-2,-3,-2,-2),(24,12,14,2,2,2,1),(25,13,14,1,3,0,1),(26,14,14,1,3,1,1),(27,15,14,2,4,0,2),(28,16,14,0,2,2,4),(29,17,14,2,4,0,2),(30,1,17,-2,-4,-1,-3),(31,2,17,2,4,1,3),(32,3,17,-1,-4,-1,-2),(33,4,17,1,4,1,2),(34,5,17,0,-4,1,-3),(35,6,17,4,4,4,3),(36,7,17,1,3,1,1);
 /*!40000 ALTER TABLE `move` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Dumping routines for database 'chinese_checkers'
---
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -88,4 +82,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-01-25 22:37:45
+-- Dump completed on 2025-01-26 16:11:36

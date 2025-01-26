@@ -65,16 +65,18 @@ public class CLI
         "select_ruleset", this::selectRuleset,
         "start", this::startServer,
         "stop", this::stopServer,
-        "restart", this::restartServer,
         "exit", this::exit
     );
 
     private final Set<Integer> allowedPlayerCounts = Set.of(2, 3, 4, 6);
 
-    private final Map<String, Ruleset> rulesets = Map.of(
-        "standard", new StandardRuleset(board, cornerHelper),
-        "fast_paced", new FastPacedRuleset(board, cornerHelper)
-    );
+    private Ruleset getRuleset(Board board, CornerHelper cornerHelper, String rulesetName) {
+        return switch (rulesetName) {
+            case "standard" -> new StandardRuleset(board, cornerHelper);
+            case "fast_paced" -> new FastPacedRuleset(board, cornerHelper);
+            default -> throw new IllegalArgumentException("Invalid ruleset: " + rulesetName);
+        };
+    }
 
 
     public CLI() {}
@@ -203,7 +205,7 @@ public class CLI
 
     private String loadAndStart(String[] args) {
         if (args.length != 2) {
-            return "Invalid number of arguments. Usage: load_game <game_id>";
+            return "Invalid number of arguments. Usage: load_and_start <game_id>";
         }
 
         int gameId;
@@ -219,30 +221,39 @@ public class CLI
 
         SaveManager saveManager = SaveManager.getInstance();
         Game game = saveManager.getGameById(gameId);
-        String rulesetName = game.getRuleset().name().toLowerCase();
-        ruleset = rulesets.get(rulesetName);
+        if (game == null) {
+            return "Game with ID " + gameId + " not found";
+        }
+        rulesetName = game.getRuleset().name().toLowerCase();
         playerCount = game.getNumPlayers();
+        
         cornerHelper = new CornerHelper(playerCount, board.getSize());
+        ruleset = getRuleset(board, cornerHelper, rulesetName);
         server = new Server(playerCount, botCount, port, ruleset, board, cornerHelper);
         server.start(game);
 
-        return "Game with ID " + gameId + " will be loaded upon start";
+        return  "Loaded game with ID " + gameId + ". \n" +
+                "Server started on port " + port + " with: \n" +
+                "   [player count]: " + playerCount + "\n" +
+                "   [bot count]:    " + botCount + "\n" +
+                "   [ruleset]:      " + ruleset.getName();
     }
 
     private String selectRuleset(String[] args) {
         if (args.length != 2) {
-            return  "Invalid number of arguments. Usage: select_ruleset <ruleset>. \n" +
-                    "   Available rulesets: " + String.join(", ", rulesets.keySet());
+            return  "Invalid number of arguments. Usage: select_ruleset <ruleset>.";
         }
 
         String rulesetNameValue = args[1];
-        if (!rulesets.containsKey(rulesetNameValue)) {
-            return "Invalid ruleset. Available rulesets: " + String.join(", ", rulesets.keySet());
+
+        try {
+            ruleset = getRuleset(board, cornerHelper, rulesetNameValue);
+            rulesetName = rulesetNameValue;
+            return "Ruleset set to " + rulesetName;
+        } catch (IllegalArgumentException e) {
+            return e.getMessage();
         }
 
-        rulesetName = rulesetNameValue;
-
-        return "Ruleset set to " + rulesetName;
     }
 
     private String startServer(String[] args) {
@@ -251,7 +262,7 @@ public class CLI
         }
 
         cornerHelper = new CornerHelper(playerCount, board.getSize());
-        ruleset = rulesets.get(rulesetName); // warning: depends on board and cornerHelper
+        ruleset = getRuleset(board, cornerHelper, rulesetName);
 
         server = new Server(playerCount, botCount, port, ruleset, board, cornerHelper);
         server.start(null);
@@ -271,26 +282,6 @@ public class CLI
         server = null;
 
         return "Server stopped";
-    }
-
-    private String restartServer(String[] args)
-    {
-        if (server == null) {
-            return "Server not started";
-        }
-
-        server.stop();
-
-        cornerHelper = new CornerHelper(playerCount, board.getSize());
-        ruleset = rulesets.get(rulesetName); // warning: depends on board and cornerHelper
-
-        server = new Server(playerCount, botCount, port, ruleset, board, cornerHelper);
-        server.start(null);
-
-        return  "Server restarted on port " + port + "with: \n" +
-                "   [player count]: " + playerCount + "\n" +
-                "   [bot count]:    " + botCount + "\n" +
-                "   [ruleset]:      " + ruleset.getName();
     }
 
     private String exit(String[] args) {
