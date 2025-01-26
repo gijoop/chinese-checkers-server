@@ -26,7 +26,7 @@ public class ValidatorsTest {
     @BeforeEach
     public void setUp() {
         board = new StandardBoard(5);
-        cornerHelper = new CornerHelper(2, board);
+        cornerHelper = new CornerHelper(2, board.getSize());
         ruleset = new StandardRuleset(board, cornerHelper);
 
         pawnA = new Pawn(null);

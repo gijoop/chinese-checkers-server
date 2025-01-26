@@ -23,12 +23,12 @@ public class CornerHelperTest {
     public void setUp() {
         Board board5 = new StandardBoard(5);
         Board board4 = new StandardBoard(4);
-        cornerHelperA = new CornerHelper(2, board5);
-        cornerHelperB = new CornerHelper(3, board5);
-        cornerHelperC = new CornerHelper(4, board5);
-        cornerHelperD = new CornerHelper(6, board5);
-        cornerHelperE = new CornerHelper(2, board4);
-        cornerHelperF = new CornerHelper(3, board4);
+        cornerHelperA = new CornerHelper(2, board5.getSize());
+        cornerHelperB = new CornerHelper(3, board5.getSize());
+        cornerHelperC = new CornerHelper(4, board5.getSize());
+        cornerHelperD = new CornerHelper(6, board5.getSize());
+        cornerHelperE = new CornerHelper(2, board4.getSize());
+        cornerHelperF = new CornerHelper(3, board4.getSize());
     }
 
     @Test

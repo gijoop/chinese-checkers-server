@@ -68,6 +68,13 @@ public interface Board {
     public ArrayList<Pawn> getPlayerPawns(Corner corner);
 
     /**
+     * Retrieves all the pawns on the board.
+     *
+     * @return a list of all the pawns on the board
+     */
+    public ArrayList<Pawn> getPawns();
+
+    /**
      * Checks if the specified position on the board is occupied by a pawn.
      *
      * @param position the position to check

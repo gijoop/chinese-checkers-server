@@ -29,6 +29,18 @@ public interface Ruleset {
         OUT_OF_GOAL
     }
 
+    public enum type {
+        STANDARD,
+        FAST_PACED
+    }
+
+    /**
+     * Gets the type of the ruleset.
+     *
+     * @return the type of the ruleset
+     */
+    public type getType();
+
     /**
      * Validates a move for a given pawn to a specified position.
      *

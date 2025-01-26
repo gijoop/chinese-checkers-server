@@ -19,6 +19,7 @@ import com.chinese_checkers.comms.Player.Corner;
 import com.chinese_checkers.server.Game.Ruleset.CornerHelper;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset.MoveResult;
+import com.chinese_checkers.server.DBConnection.Game;
 import com.chinese_checkers.server.Game.Board;
 import com.chinese_checkers.server.Game.GameManager;
 import com.chinese_checkers.comms.Player;
@@ -37,7 +38,7 @@ public class Server {
      *
      * @return ID of the next player
      */
-    public int getplayerID() {
+    public int getPlayerID() {
         return playerID++;
     }
     
@@ -58,7 +59,15 @@ public class Server {
      * @param port the port to run the server on
      * @throws IllegalArgumentException if the player count or port is out of valid range
      */
-    public Server(final int playerCount, final int port, Ruleset ruleset, Board board, CornerHelper cornerHelper) throws IllegalArgumentException {
+    public Server(
+        final int playerCount, 
+        final int botCount, 
+        final int port, 
+        Ruleset ruleset, 
+        Board board, 
+        CornerHelper cornerHelper) 
+        throws IllegalArgumentException {
+
         if (playerCount < 2 || playerCount > 6) {
             throw new IllegalArgumentException("Player count must be between 2 and 6");
         }
@@ -78,7 +87,7 @@ public class Server {
     /**
      * Starts the server and waits for players to connect.
      */
-    public void start() {
+    public void start(Game loadGame) {
         System.out.println("Server started on port " + port);
         playerConnections = new HashMap<>(playerCount);
 
@@ -87,7 +96,7 @@ public class Server {
             connectionPool = Executors.newFixedThreadPool(playerCount);
 
             for (int i = 0; i < playerCount; i++) {
-                int playerID = getplayerID();
+                int playerID = getPlayerID();
                 PlayerConnection playerConn = new PlayerConnection(listener, socketLock, this, playerID);
                 connectionPool.execute(playerConn);
                 playerConnections.put(playerID, playerConn);
@@ -124,7 +133,7 @@ public class Server {
         GameStartMessage msg = gameManager.initializeGame(playerConnections.values()
                                     .stream()
                                     .map(PlayerConnection::getPlayer)
-                                    .collect(Collectors.toList()));
+                                    .collect(Collectors.toList()), loadGame);
         
         sendToAll(msg);
 

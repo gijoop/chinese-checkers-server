@@ -54,6 +54,10 @@ public class StandardBoard implements Board {
         return pawns;
     }
 
+    public ArrayList<Pawn> getPawns() {
+        return new ArrayList<>(pawnToPos.keySet());
+    }
+
     public Pawn getPawnById(int id) {
         for (Pawn p : pawnToPos.keySet()) {
             if (p.getId() == id) {

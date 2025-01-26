@@ -18,7 +18,7 @@ public class StandardRulesetTest {
     @Test
     public void testGetStartingPositionsSize5() {
         StandardBoard board = new StandardBoard(5);
-        CornerHelper cornerHelper = new CornerHelper(3, board);
+        CornerHelper cornerHelper = new CornerHelper(3, board.getSize());
         Ruleset ruleset = new StandardRuleset(board, cornerHelper);
 
         ArrayList<Position> startingPositions = ruleset.getStartingPositions(Corner.UPPER);
@@ -77,7 +77,7 @@ public class StandardRulesetTest {
     @Test
     public void testGetStartingPositionsSize4() {
         StandardBoard board = new StandardBoard(4);
-        CornerHelper cornerHelper = new CornerHelper(3, board);
+        CornerHelper cornerHelper = new CornerHelper(3, board.getSize());
         Ruleset ruleset = new StandardRuleset(board, cornerHelper);
 
         ArrayList<Position> startingPositions = ruleset.getStartingPositions(Corner.UPPER);
@@ -124,7 +124,7 @@ public class StandardRulesetTest {
     @Test
     public void testIsInBounds() {
         StandardBoard board = new StandardBoard(5);
-        CornerHelper cornerHelper = new CornerHelper(3, board);
+        CornerHelper cornerHelper = new CornerHelper(3, board.getSize());
         Ruleset ruleset = new StandardRuleset(board, cornerHelper);
 
         assertTrue(ruleset.isInBounds(new Position(0, 0)));
@@ -144,7 +144,7 @@ public class StandardRulesetTest {
     @Test
     public void testGetReachableMoves() {
         StandardBoard board = new StandardBoard(5);
-        CornerHelper cornerHelper = new CornerHelper(3, board);
+        CornerHelper cornerHelper = new CornerHelper(3, board.getSize());
         Ruleset ruleset = new StandardRuleset(board, cornerHelper);
         //Player player = new Player("Player1", 1000);
         Pawn pawn = new Pawn(null);
@@ -164,7 +164,7 @@ public class StandardRulesetTest {
     @Test
     public void testGetReachableJumps() {
         StandardBoard board = new StandardBoard(5);
-        CornerHelper cornerHelper = new CornerHelper(3, board);
+        CornerHelper cornerHelper = new CornerHelper(3, board.getSize());
         Ruleset ruleset = new StandardRuleset(board, cornerHelper);
         Pawn pawnA = new Pawn(null);
         Pawn pawnB = new Pawn(null);

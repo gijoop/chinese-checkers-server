@@ -22,6 +22,11 @@ public class FastPacedRuleset extends StandardRuleset {
     }
 
     @Override
+    public type getType() {
+        return type.FAST_PACED;
+    }
+
+    @Override
     public ArrayList<Position> getReachableJumps(Position position) {
         ArrayList<Position> jumps = new ArrayList<>();
         int x = position.getX();
