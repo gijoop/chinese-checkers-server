@@ -85,4 +85,42 @@ public class StandardBoard implements Board {
             System.out.println(entry.getKey() + " : " + entry.getValue());
         }
     }
+
+    @Override
+    public int distance(Position a, Position b)
+    {
+        // offset everything by a
+        // a is now (0, 0)
+        Position newB = new Position(b.getX() - a.getX(), b.getY() - a.getY());
+
+        int sgnX = Integer.compare(newB.getX(), 0);
+        int sgnY = Integer.compare(newB.getY(), 0);
+
+        // treat 0 as don't care
+
+        if (sgnX + sgnY == 0) {
+            // different signs
+            return Math.abs(newB.getX()) + Math.abs(newB.getY());
+        } else {
+            // same sign
+            return Math.max(Math.abs(newB.getX()), Math.abs(newB.getY()));
+        }
+    }
+
+    @Override
+    public int distance(Position a, Corner corner)
+    {
+        int p = size - 1; // used to calculate distance to corners
+
+		return switch (corner)
+		{
+			case Corner.UPPER ->        distance(a, new Position(p,   2 * p));
+			case Corner.UPPER_RIGHT ->  distance(a, new Position(2 * p,   p));
+			case Corner.LOWER_RIGHT ->  distance(a, new Position(p,         -p));
+			case Corner.LOWER ->        distance(a, new Position(-p, -2 * p));
+			case Corner.LOWER_LEFT ->   distance(a, new Position(-2 * p, -p));
+			case Corner.UPPER_LEFT ->   distance(a, new Position(-p,         p));
+			default -> -1;
+		};
+    }
 }

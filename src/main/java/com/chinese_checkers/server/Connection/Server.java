@@ -43,11 +43,13 @@ public class Server {
     }
     
     private final int playerCount;
+    private final int humanCount;
+    private final int botCount;
     private final int port;
     private int latestPlace = 1;
 
     private HashMap<Integer, PlayerConnection> playerConnections;
-    private GameManager gameManager;
+    private final GameManager gameManager;
     private ServerSocket listener;
     private ExecutorService connectionPool;
     private ReentrantLock socketLock = new ReentrantLock();
@@ -71,11 +73,17 @@ public class Server {
         if (playerCount < 2 || playerCount > 6) {
             throw new IllegalArgumentException("Player count must be between 2 and 6");
         }
+        if (botCount < 0 || botCount >= playerCount) {
+            throw new IllegalArgumentException("Bot count must be between 0 and player count - 1");
+        }
         if (port < 1024 || port > 65535) {
             throw new IllegalArgumentException("Port must be between 1024 and 65535");
         }
 
         this.playerCount = playerCount;
+        this.botCount = botCount;
+        this.humanCount = playerCount - botCount;
+
         this.port = port;
         int pawnsPerPlayer = 10;
         if(playerCount == 2) {
@@ -93,9 +101,9 @@ public class Server {
 
         try {
             listener = new ServerSocket(port);
-            connectionPool = Executors.newFixedThreadPool(playerCount);
+            connectionPool = Executors.newFixedThreadPool(humanCount);
 
-            for (int i = 0; i < playerCount; i++) {
+            for (int i = 0; i < humanCount; i++) {
                 int playerID = getPlayerID();
                 PlayerConnection playerConn = new PlayerConnection(listener, socketLock, this, playerID);
                 connectionPool.execute(playerConn);
@@ -117,7 +125,7 @@ public class Server {
                 }
             }
 
-            if (connectedPlayers == playerCount) {
+            if (connectedPlayers == humanCount) {
                 break;
             }
 
@@ -126,6 +134,14 @@ public class Server {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+
+        // add bots
+        for (int i = 0; i < botCount; i++) {
+            int playerID = getPlayerID();
+            BotConnection botConn = new BotConnection(listener, socketLock, this, playerID);
+            connectionPool.execute(botConn);
+            playerConnections.put(playerID, botConn);
         }
 
         System.out.println("All players connected, starting game");
@@ -239,5 +255,9 @@ public class Server {
                 .map(connection -> connection.getPlayer().getId())
                 .findFirst()
                 .orElse(-1);
+    }
+
+    public GameManager getGameManager() {
+        return gameManager;
     }
 }

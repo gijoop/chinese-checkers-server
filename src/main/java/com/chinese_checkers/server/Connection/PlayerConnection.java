@@ -20,17 +20,17 @@ import com.chinese_checkers.comms.CommandParser;
  */
 public class PlayerConnection implements Runnable {
 
-    private Player player;
-    private int playerID;
+    protected Player player;
+    protected int playerID;
     private ServerSocket listener;
     private Socket clientSocket;
     private BufferedReader reciever;
     private PrintWriter sender;
-    private CommandParser commandParser;
-    private ReentrantLock socketLock;
-    private boolean terminated = false;
-    private boolean connected = false;
-    private boolean waitingToJoin = false;
+    protected CommandParser commandParser;
+    protected ReentrantLock socketLock;
+    protected boolean terminated = false;
+    protected boolean connected = false;
+    protected boolean waitingToJoin = false;
     
     /**
      * Constructs a PlayerConnection object with the specified listener, socket lock, server, and player ID.
@@ -83,7 +83,7 @@ public class PlayerConnection implements Runnable {
      *
      * @throws IOException if an I/O error occurs when waiting for a connection
      */
-    private void establishConnection() throws IOException {
+    protected void establishConnection() throws IOException {
         socketLock.lock();
         try {
             clientSocket = listener.accept();
@@ -103,7 +103,7 @@ public class PlayerConnection implements Runnable {
      *
      * @throws IOException if an I/O error occurs when reading from the input stream
      */
-    private void startListener() throws IOException {
+    protected void startListener() throws IOException {
         while (!terminated) {
             try {
                 String line = reciever.readLine(); // blocking if no line
@@ -155,7 +155,7 @@ public class PlayerConnection implements Runnable {
      *
      * @param msg the join request message
      */
-    private void joinCallback(RequestJoinMessage msg) {
+    protected void joinCallback(RequestJoinMessage msg) {
         if (waitingToJoin) {
             connected = true;
             player = new Player(msg.getName(), playerID);

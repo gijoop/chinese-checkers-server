@@ -86,7 +86,7 @@ public class CLI
         System.out.println("Usage: <command> <args>\n Available commands: \n" +
         "- set_port <1024 - 65535> \n " +
         "- set_player_count <2, 3, 4, 6> \n " +
-        "- set_bot_count <0 - 5> \n " +
+        "- set_bot_count <0 - 5> (at least one human player must remain)\n " +
         "- show_saves\n " +
         "- load_and_start <game_id>\n " +
         "- select_ruleset <standard/fast_paced> \n " +

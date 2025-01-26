@@ -21,8 +21,8 @@ import com.chinese_checkers.comms.Message.FromServer.GameStartMessage;
  * It handles initializing the game, validating and executing moves, and determining the winner.
  */
 public class GameManager {
-    private Board board;
-    private Ruleset ruleset;
+    private final Board board;
+    private final Ruleset ruleset;
     private int pawnsPerPlayer;
     private Optional<Corner> currentTurn;
     private ArrayList<Corner> takenCorners;
@@ -109,11 +109,13 @@ public class GameManager {
 
         MoveResult result = ruleset.validateMove(pawn, p);
         boolean endTurn = true;
-
+        
+        SaveManager saveManager = SaveManager.getInstance();
         if(result == MoveResult.SUCCESS) {
             if(jumpedPawn == null) {
                 System.out.println("Player " + player.getName() + " moved pawn " + pawnId + " to (" + p.getX() + ", " + p.getY() + ")");
                 board.movePawn(pawn, p);
+                saveManager.saveMove(new Move(startPosition, p));
             }
             else{
                 result = MoveResult.INVALID_MOVE;
@@ -124,6 +126,7 @@ public class GameManager {
             if(jumpedPawn == pawn || jumpedPawn == null) {
                 System.out.println("Player " + player.getName() + " jumped pawn " + pawnId + " to (" + p.getX() + ", " + p.getY() + ")");
                 board.movePawn(pawn, p);
+                saveManager.saveMove(new Move(startPosition, p));
                 jumpedPawn = pawn;
                 endTurn = false;
             }else{
@@ -142,15 +145,11 @@ public class GameManager {
             endTurn = true;
             result = MoveResult.SUCCESS_WIN;
         }
-        
-        SaveManager saveManager = SaveManager.getInstance();
-        saveManager.saveMove(new Move(startPosition, p));
 
         if(endTurn) {
             endTurn(player);
         }
 
-        saveManager.updateSave(currentTurn.get());
         return result;
     }
 
@@ -212,6 +211,7 @@ public class GameManager {
         System.out.print("Changing turn from " + currentTurn + " to ");
         setNextTurn();
         System.out.println(currentTurn);
+        SaveManager.getInstance().updateSave(currentTurn.get());
     }
 
     /**
@@ -222,5 +222,14 @@ public class GameManager {
             takenCorners.get((takenCorners.indexOf(corner) + 1) % takenCorners.size())
         );
         jumpedPawn = null;
-    } 
+    }
+
+
+    public Board getBoard() {
+        return board;
+    }
+
+    public Ruleset getRuleset() {
+        return ruleset;
+    }
 }

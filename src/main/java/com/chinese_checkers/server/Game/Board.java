@@ -86,4 +86,8 @@ public interface Board {
      * Prints the current state of the board.
      */
     public void printBoard();
+
+
+    public int distance(Position a, Position b);
+    public int distance(Position a, Corner corner);
 }
