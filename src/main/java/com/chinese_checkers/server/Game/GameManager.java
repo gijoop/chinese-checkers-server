@@ -20,8 +20,8 @@ import com.chinese_checkers.comms.Message.FromServer.GameStartMessage;
  * It handles initializing the game, validating and executing moves, and determining the winner.
  */
 public class GameManager {
-    private Board board;
-    private Ruleset ruleset;
+    private final Board board;
+    private final Ruleset ruleset;
     private int pawnsPerPlayer;
     private Optional<Corner> currentTurn;
     private ArrayList<Corner> takenCorners;
@@ -204,5 +204,14 @@ public class GameManager {
             takenCorners.get((takenCorners.indexOf(corner) + 1) % takenCorners.size())
         );
         jumpedPawn = null;
-    } 
+    }
+
+
+    public Board getBoard() {
+        return board;
+    }
+
+    public Ruleset getRuleset() {
+        return ruleset;
+    }
 }
