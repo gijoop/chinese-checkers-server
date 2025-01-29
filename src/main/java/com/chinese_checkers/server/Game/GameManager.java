@@ -144,6 +144,9 @@ public class GameManager {
             takenCorners.remove(player.getCorner());
             endTurn = true;
             result = MoveResult.SUCCESS_WIN;
+            if(takenCorners.size() == 0){
+                return result;
+            }
         }
 
         if(endTurn) {
