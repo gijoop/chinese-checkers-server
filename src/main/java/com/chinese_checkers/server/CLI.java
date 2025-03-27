@@ -82,8 +82,6 @@ public class CLI
         "- set_port <1024 - 65535> \n " +
         "- set_player_count <2, 3, 4, 6> \n " +
         "- set_bot_count <0 - 5> (at least one human player must remain)\n " +
-        "- show_saves\n " +
-        "- load_and_start <game_id>\n " +
         "- select_ruleset <standard/fast_paced> \n " +
         "- start\n " +
         "- exit\n");
