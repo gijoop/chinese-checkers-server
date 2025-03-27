@@ -8,7 +8,6 @@ import java.util.Set;
 
 import com.chinese_checkers.comms.Player;
 import com.chinese_checkers.comms.Player.Corner;
-import com.chinese_checkers.server.DBConnection.Game;
 import com.chinese_checkers.server.Game.Ruleset.CornerHelper;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset.MoveResult;
@@ -51,7 +50,7 @@ public class GameManager {
      * @param players the players participating in the game
      * @return a GameStartMessage containing the initial state of the game
      */
-    public GameStartMessage initializeGame(Collection<Player> players, Game loadGame) {
+    public GameStartMessage initializeGame(Collection<Player> players) {
         cornerHelper = new CornerHelper(players.size(), board.getSize());
         ArrayList<Corner> startingCorners = cornerHelper.getStartingCorners();
         GameStartMessage gameStartMessage = new GameStartMessage(board.getSize());
@@ -68,15 +67,7 @@ public class GameManager {
                 board.addPawn(pawn, startingPositions.get(i));
             }
         }
-
-        SaveManager saveManager = SaveManager.getInstance();
-        if(loadGame != null){
-            saveManager.loadGameToBoard(loadGame, board);
-            currentTurn = Optional.of(loadGame.getCurrentTurn());
-        } else{
-            currentTurn = Optional.of(players.stream().skip((int)(players.size() * Math.random())).findFirst().get().getCorner());
-            saveManager.newGame(players.size(), ruleset.getType(), currentTurn.get(), board.getSize());
-        }
+        currentTurn = Optional.of(players.stream().skip((int)(players.size() * Math.random())).findFirst().get().getCorner());
 
         for(Pawn pawn : board.getPawns()) {
             gameStartMessage.addPawn(board.getPositionOf(pawn), pawn);
@@ -100,7 +91,6 @@ public class GameManager {
         }
         
         Pawn pawn = board.getPawnById(pawnId);
-        Position startPosition = board.getPositionOf(pawn);
 
         if(!isValidPawn(pawn, player)) {
             System.out.println("Player " + player.getName() + " tried to move a pawn that doesn't belong to them or doesn't exist");
@@ -110,12 +100,10 @@ public class GameManager {
         MoveResult result = ruleset.validateMove(pawn, p);
         boolean endTurn = true;
         
-        SaveManager saveManager = SaveManager.getInstance();
         if(result == MoveResult.SUCCESS) {
             if(jumpedPawn == null) {
                 System.out.println("Player " + player.getName() + " moved pawn " + pawnId + " to (" + p.getX() + ", " + p.getY() + ")");
                 board.movePawn(pawn, p);
-                saveManager.saveMove(new Move(startPosition, p));
             }
             else{
                 result = MoveResult.INVALID_MOVE;
@@ -126,7 +114,6 @@ public class GameManager {
             if(jumpedPawn == pawn || jumpedPawn == null) {
                 System.out.println("Player " + player.getName() + " jumped pawn " + pawnId + " to (" + p.getX() + ", " + p.getY() + ")");
                 board.movePawn(pawn, p);
-                saveManager.saveMove(new Move(startPosition, p));
                 jumpedPawn = pawn;
                 endTurn = false;
             }else{
@@ -214,7 +201,6 @@ public class GameManager {
         System.out.print("Changing turn from " + currentTurn + " to ");
         setNextTurn();
         System.out.println(currentTurn);
-        SaveManager.getInstance().updateSave(currentTurn.get());
     }
 
     /**

@@ -1,16 +1,13 @@
 package com.chinese_checkers.server;
 
 import com.chinese_checkers.server.Connection.Server;
-import com.chinese_checkers.server.DBConnection.Game;
 import com.chinese_checkers.server.Game.Board;
-import com.chinese_checkers.server.Game.SaveManager;
 import com.chinese_checkers.server.Game.StandardBoard;
 import com.chinese_checkers.server.Game.Ruleset.CornerHelper;
 import com.chinese_checkers.server.Game.Ruleset.FastPacedRuleset;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset;
 import com.chinese_checkers.server.Game.Ruleset.StandardRuleset;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -60,8 +57,6 @@ public class CLI
         "set_port", this::setPort,
         "set_player_count", this::setPlayerCount,
         "set_bot_count", this::setBotCount,
-        "show_saves", this::showSaves,
-        "load_and_start", this::loadAndStart,
         "select_ruleset", this::selectRuleset,
         "start", this::startServer,
         "stop", this::stopServer,
@@ -189,56 +184,6 @@ public class CLI
         return "Bot count set to " + botCount;
     }
 
-    private String showSaves(String[] args) {
-        if (args.length != 1) {
-            return "Invalid number of arguments. Usage: show_saves";
-        }
-
-        List<Game> saves = SaveManager.getInstance().getSaves();
-        String output = "Saved games: \n";
-        for (Game save : saves) {
-            output += save.toString() + "\n";
-        }
-
-        return output;
-    }
-
-    private String loadAndStart(String[] args) {
-        if (args.length != 2) {
-            return "Invalid number of arguments. Usage: load_and_start <game_id>";
-        }
-
-        int gameId;
-        try {
-            gameId = Integer.parseInt(args[1]);
-        } catch (NumberFormatException e) {
-            return "Game ID must be an integer";
-        }
-
-        if(gameId < 0) {
-            return "Game ID must be a positive integer";
-        }
-
-        SaveManager saveManager = SaveManager.getInstance();
-        Game game = saveManager.getGameById(gameId);
-        if (game == null) {
-            return "Game with ID " + gameId + " not found";
-        }
-        rulesetName = game.getRuleset().name().toLowerCase();
-        playerCount = game.getNumPlayers();
-        
-        cornerHelper = new CornerHelper(playerCount, board.getSize());
-        ruleset = getRuleset(board, cornerHelper, rulesetName);
-        server = new Server(playerCount, botCount, port, ruleset, board, cornerHelper);
-        server.start(game);
-
-        return  "Loaded game with ID " + gameId + ". \n" +
-                "Server started on port " + port + " with: \n" +
-                "   [player count]: " + playerCount + "\n" +
-                "   [bot count]:    " + botCount + "\n" +
-                "   [ruleset]:      " + ruleset.getName();
-    }
-
     private String selectRuleset(String[] args) {
         if (args.length != 2) {
             return  "Invalid number of arguments. Usage: select_ruleset <ruleset>.";
@@ -265,7 +210,7 @@ public class CLI
         ruleset = getRuleset(board, cornerHelper, rulesetName);
 
         server = new Server(playerCount, botCount, port, ruleset, board, cornerHelper);
-        server.start(null);
+        server.start();
 
         return  "Server started on port " + port + " with: \n" +
                 "   [player count]: " + playerCount + "\n" +

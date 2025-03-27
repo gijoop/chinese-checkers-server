@@ -49,6 +49,13 @@ public class StandardRuleset implements Ruleset {
         return type.STANDARD;
     }
 
+    /**
+     * Validates a move for a given pawn to a specified position.
+     *
+     * @param pawn the pawn to move
+     * @param position the position to move the pawn to
+     * @return the result of the move validation
+     */
     public MoveResult validateMove(Pawn pawn, Position position) {
         Move move = new Move(board.getPositionOf(pawn), position);
         Corner playerCorner = pawn.getOwner().getCorner();

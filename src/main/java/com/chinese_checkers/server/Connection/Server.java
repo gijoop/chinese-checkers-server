@@ -19,7 +19,6 @@ import com.chinese_checkers.comms.Player.Corner;
 import com.chinese_checkers.server.Game.Ruleset.CornerHelper;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset;
 import com.chinese_checkers.server.Game.Ruleset.Ruleset.MoveResult;
-import com.chinese_checkers.server.DBConnection.Game;
 import com.chinese_checkers.server.Game.Board;
 import com.chinese_checkers.server.Game.GameManager;
 import com.chinese_checkers.comms.Player;
@@ -95,7 +94,7 @@ public class Server {
     /**
      * Starts the server and waits for players to connect.
      */
-    public void start(Game loadGame) {
+    public void start() {
         System.out.println("Server started on port " + port);
         playerConnections = new HashMap<>(playerCount);
 
@@ -149,7 +148,7 @@ public class Server {
         GameStartMessage msg = gameManager.initializeGame(playerConnections.values()
                                     .stream()
                                     .map(PlayerConnection::getPlayer)
-                                    .collect(Collectors.toList()), loadGame);
+                                    .collect(Collectors.toList()));
         
         sendToAll(msg);
 

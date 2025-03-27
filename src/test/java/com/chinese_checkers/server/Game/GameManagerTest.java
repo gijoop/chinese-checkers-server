@@ -40,7 +40,7 @@ public class GameManagerTest {
 
     @Test
     public void testInitializeGame() {
-        GameStartMessage gameStartMessage = gameManager.initializeGame(new ArrayList<>(List.of(playerA, playerB, playerC)), null);
+        GameStartMessage gameStartMessage = gameManager.initializeGame(new ArrayList<>(List.of(playerA, playerB, playerC)));
         assertEquals(5, gameStartMessage.getBoardSize());
         assertEquals(30, gameStartMessage.getPawns().size());
         assertEquals(10, gameStartMessage.getPawns().values().stream().filter(p -> p.getOwner().equals(playerA)).count());
@@ -51,7 +51,7 @@ public class GameManagerTest {
     @Test
     public void testCheckAndMove() {
         Player player = null;
-        gameManager.initializeGame(new ArrayList<>(List.of(playerA, playerB, playerC)), null);
+        gameManager.initializeGame(new ArrayList<>(List.of(playerA, playerB, playerC)));
         switch(gameManager.getCurrentTurn()) {
             case Corner.UPPER_LEFT:
                 player = playerA;
@@ -73,7 +73,7 @@ public class GameManagerTest {
 
     @Test
     public void testCheckWin() {
-        gameManager.initializeGame(new ArrayList<>(List.of(playerA, playerB, playerC)), null);
+        gameManager.initializeGame(new ArrayList<>(List.of(playerA, playerB, playerC)));
         Corner corner = playerA.getCorner();
         ArrayList<Position> winningPositions = ruleset.getStartingPositions(corner.getOpposite());
         ArrayList<Position> startingPositions = ruleset.getStartingPositions(corner);
